@@ -1,0 +1,10 @@
+Assignment done
+64 security devices placed
+Already controlled link
+No connection
+0 security devices placed
+Server overload
+49 security devices placed
+No connection
+Network redundancy
+Wrong link

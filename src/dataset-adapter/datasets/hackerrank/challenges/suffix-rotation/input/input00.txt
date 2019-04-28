@@ -1,0 +1,4 @@
+3
+abcdefghij
+acab
+baba

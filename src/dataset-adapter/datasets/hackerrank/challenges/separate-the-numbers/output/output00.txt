@@ -1,0 +1,7 @@
+YES 1
+YES 9
+YES 99
+NO
+NO
+NO
+NO

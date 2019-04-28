@@ -1,0 +1,6 @@
+element 3 is at position 1
+element at position 3 is 1
+element at position 1 is 3
+element at position 5 is 1
+element 4 is at position 2
+element 2 is at position 4
