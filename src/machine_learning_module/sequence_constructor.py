@@ -61,6 +61,7 @@ class SequenceConstructor:
     def expectimax(self, depth):
         self.current_depth = -1
         initial_skill_vector = self.model.predict(self.history)
+
         self.tree_search(initial_skill_vector, depth)
 
     def tree_search(self, skill_vector, exercise, depth, is_solved = True):
