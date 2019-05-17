@@ -5,22 +5,25 @@ from keras.models import load_model
 
 
 class LSTMModel:
-    def __init__(self, max_n_interactions, n_exercises, batch_size):
-        self.max_n_interactions = max_n_interactions
+    def __init__(self, hidden_units, n_exercises, batch_size):
         self.n_exercises = n_exercises
+        self.batch_size = batch_size
+
         # define model
         self.history = None
         self.model = Sequential()
-        self.model.add(Masking(-1., batch_input_shape = (batch_size, None, max_n_interactions)))
-        self.model.add(LSTM(200, return_sequences = True, stateful = True))
-        # self.model.add(LSTM(200, activation='relu', input_shape=(self.max_n_interactions, n_exercises)))
+
+        # ignore timesteps containing -1s dealing with padding
+        self.model.add(Masking(-1., batch_input_shape=(batch_size, None, 2 * n_exercises)))
+        self.model.add(LSTM(units=hidden_units, input_dim=n_exercises*2, return_sequences=True, stateful=True))
         self.model.add(Dropout(0.5))
-        self.model.add(TimeDistributed(Dense(n_exercises, activation = 'sigmoid')))
-        self.model.add(Dense(self.n_exercises))
-        self.model.compile(optimizer = 'adam', loss = 'binary_crossentropy')
+        self.model.add(TimeDistributed(Dense(n_exercises, activation='sigmoid')))
+        self.model.add(Dense(self.n_exercises, activation='sigmoid'))
+        self.model.compile(optimizer='adam', loss='binary_crossentropy')
 
     # def fit(self, X, y, epochs, verbose=0, batch_size=32):
-    def fit(self, train_gen, val_gen, epochs, verbose = 0, batch_size = 32):
+    def fit(self, train_gen, val_gen, epochs, verbose=0, batch_size=32):
+
         # fit model
         # self.history = self.model.fit(X, y, epochs=epochs, verbose=verbose, batch_size=batch_size)
 

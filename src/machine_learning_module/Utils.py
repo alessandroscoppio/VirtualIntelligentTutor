@@ -1,5 +1,8 @@
 import pandas as pd
 import random
+import math
+import numpy as np
+from sklearn.preprocessing import OneHotEncoder
 
 
 def split_dataset(data, validation_rate, testing_rate, shuffle=True):
