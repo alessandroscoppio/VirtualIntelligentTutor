@@ -59,53 +59,58 @@ class SequenceConstructor:
         return best_exercise
 
     def expectimax(self, depth):
-        self.current_depth = -1
         initial_skill_vector = self.model.predict(self.history)
-
         self.tree_search(initial_skill_vector, depth)
 
-    def tree_search(self, skill_vector, exercise, depth, is_solved = True):
-        self.current_depth += 1
+    def tree_search(self, skill_vector, exercise, depth):
+        """
 
-        if depth % 2 == 0:
-
-            if is_solved:
-                # Simulate that the user solves the exercise
-                self.history.append(self.solve_exercise(exercise))
-            else:
-                # Simulate that the user does NOT solve the exercise
-                self.history.append(self.fail_exercise(exercise))
-
+        :param skill_vector:
+        :param exercise:
+        :param depth: only even nunmber of Depth
+        :return:
+        """
+        if depth == 0:
             # Take prediction of probabilities after user attempting to solve this exercise.
             skill_vector = self.model.predict(self.history)
+            # Evaluate action
 
-            if depth == 0:
-                # Evaluate action
-                return self.evaluate(skill_vector, 'sum_of_distances')
+            return self.evaluate(skill_vector, 'sum_of_distances')
 
-            else:
-                max_score = 0
-                # Loop through all exercises
-                for new_exercise in self.exercises:
-                    # If the exercise is not already solved
-                    if new_exercise not in self.history:
-                        # Try next exercise
-                        score = self.tree_search(skill_vector, new_exercise, depth - 1)
+        elif depth % 2 == 0:
+            max_score = 0
+            # Loop through all exercises
+            for new_exercise in self.exercises:
+                # If the exercise is not already solved
+                if new_exercise not in self.history:
+                    # Try next exercise
+                    score = self.tree_search(skill_vector, new_exercise, depth - 1)
 
-                        if score > max_score:
-                            max_score = score
+                    if score > max_score:
+                        max_score = score
 
-                return max_score
+            return max_score
 
         else:
+            # Simulate that the user solves the exercise
+            self.history.append(self.solve_exercise(exercise))
 
-            # Get values for succesful score and unseccesful score
-            succesful_score = self.tree_search(skill_vector, exercise, depth - 1, is_solved = True)
-            unsuccesful_score = self.tree_search(skill_vector, exercise, depth - 1, is_solved = False)
+            # Get values for succesful sscore
+            succesful_score = self.tree_search(skill_vector, exercise, depth - 1)
+
+            del self.history[-1]
+
+            # Simulate that the user does NOT solve the exercise
+            self.history.append(self.fail_exercise(exercise))
+
+            # Get values for unseccesful score
+            unsuccesful_score = self.tree_search(skill_vector, exercise, depth - 1)
 
             # Calculate the expected score
             expected_score = skill_vector[exercise] * succesful_score + (
                     1 - skill_vector[exercise]) * unsuccesful_score
+
+            del self.history[-1]
 
             return expected_score
 
@@ -144,7 +149,11 @@ class SequenceConstructor:
         """
         return np.sum(new_skills_vector, -old_skill_vector) / len(self.exercises)
 
-    # TODO Implement evaluation of the increase of the least performing exercise
+    # TODO
+    #   1) Implement evaluation of the increase of the least performing exercise
+    #   2) Validate that the self.history is working properly
+    #   3) Implement method that checks that the exercise is in the history
+
 
 
 if __name__ == "__main__":
