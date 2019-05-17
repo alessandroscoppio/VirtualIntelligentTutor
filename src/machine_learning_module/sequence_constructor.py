@@ -58,23 +58,55 @@ class SequenceConstructor:
 
         return best_exercise
 
-    def tree_search(self, history, skill_vector, depth, is_solved = True):
-        initial_skill_vector = skill_vector
+    def expectimax(self, depth):
+        self.current_depth = -1
+        initial_skill_vector = self.model.predict(self.history)
+        self.tree_search(initial_skill_vector, depth)
 
-        # Check if the node is a chance node, even nodes are chance nodes, odd nodes are evaluation nodes
-        if depth % 2 == 1:
-            succesful_score = self.tree_search(history, skill_vector, depth - 1, is_solved = True)
-            unsuccesful_score = self.tree_search(history, skill_vector, depth - 1, is_solved = False)
+    def tree_search(self, skill_vector, exercise, depth, is_solved = True):
+        self.current_depth += 1
+
+        if depth % 2 == 0:
+
+            if is_solved:
+                # Simulate that the user solves the exercise
+                self.history.append(self.solve_exercise(exercise))
+            else:
+                # Simulate that the user does NOT solve the exercise
+                self.history.append(self.fail_exercise(exercise))
+
+            # Take prediction of probabilities after user attempting to solve this exercise.
+            skill_vector = self.model.predict(self.history)
+
+            if depth == 0:
+                # Evaluate action
+                return self.evaluate(skill_vector, 'sum_of_distances')
+
+            else:
+                max_score = 0
+                # Loop through all exercises
+                for new_exercise in self.exercises:
+                    # If the exercise is not already solved
+                    if new_exercise not in self.history:
+                        # Try next exercise
+                        score = self.tree_search(skill_vector, new_exercise, depth - 1)
+
+                        if score > max_score:
+                            max_score = score
+
+                return max_score
 
         else:
-            # Loop through all exercises
-            for exercise in self.exercises:
-                # If the exercise is not already solved
-                if exercise not in self.history:
-            # Simulate that the user solves the exercise
 
+            # Get values for succesful score and unseccesful score
+            succesful_score = self.tree_search(skill_vector, exercise, depth - 1, is_solved = True)
+            unsuccesful_score = self.tree_search(skill_vector, exercise, depth - 1, is_solved = False)
 
+            # Calculate the expected score
+            expected_score = skill_vector[exercise] * succesful_score + (
+                    1 - skill_vector[exercise]) * unsuccesful_score
 
+            return expected_score
 
     def get_next_exercise(self):
         return self.exercises_path[-1]
