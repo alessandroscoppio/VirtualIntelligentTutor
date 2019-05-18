@@ -132,6 +132,11 @@ class DataGenerator(object):
                     # Encode skill_id
                     x_student.append(x_data)
                     skill_answer = skill_value * 2 + answer
+                    skill_answer = np.array([skill_answer])
+                    skill_value = np.array([skill_value])
+                    skill_answer = skill_answer.reshape(-1,1)
+                    skill_value = skill_value.reshape(-1,1)
+                    
                     x_data = self.feature_encoder.fit_transform(skill_answer)[0]
 
                     # Encode label

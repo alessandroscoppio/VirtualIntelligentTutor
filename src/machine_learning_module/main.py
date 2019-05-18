@@ -1,9 +1,17 @@
 # from VirtualIntelligentTutor.src.machine_learning_module.dkt_plus import LSTMModel
 # from VirtualIntelligentTutor.src.machine_learning_module.Utils import *
 
-''''''
-from src.machine_learning_module.Utils import read_file, split_dataset, DataGenerator
-from src.machine_learning_module.dkt_plus import LSTMModel
+
+# -- ignore scikit deprecated warnings, there were too many at each step --
+# https://stackoverflow.com/a/33616192/9344265
+def warn(*args, **kwargs):
+    pass
+import warnings
+warnings.warn = warn
+# --------------------------------------------------------------------------
+
+from Utils import read_file, split_dataset, DataGenerator
+from dkt_plus import LSTMModel
 
 train_log = "logs/dktmodel.train.log"  # File to save the training log.
 eval_log = "logs/dktmodel.eval.log"  # File to save the testing log.
