@@ -80,8 +80,33 @@ I suggest to read documentation of:
     please have a look at them, I may have missed something important and we could still look it up to compare
 """
 
-ourModel = LSTMModel(hidden_units=200,
-                     batch_size=batch_size,
-                     n_exercises=num_problems)
+'''
+Ibro:
+I have commented out this model and put the one below,
+which is https://github.com/LiangbeiXu/Deep-Knowledge-Tracing/blob/master/src/StudentModel.py
+I also created folders saved_models and logs because the model below requires it.
+'''
+#ourModel = LSTMModel(hidden_units=200, batch_size=batch_size, n_exercises=num_problems)
+#ourModel.fit(train_gen, val_gen, epochs=5, verbose=2)
 
-ourModel.fit(train_gen, val_gen, epochs=5, verbose=2)
+
+# ------------- The other DKT model -----------------
+from DKTmodel import DKTModel
+# Create model
+best_model_file = "saved_models/ASSISTments.best.model.weights.hdf5" # File to save the model.
+
+student_model = DKTModel(num_skills=train_gen.num_skills,
+                      num_features=train_gen.feature_dim,
+                      optimizer=optimizer,
+                      hidden_units=lstm_units,
+                      batch_size=batch_size,
+                      dropout_rate=dropout_rate)
+
+
+history = student_model.fit(train_gen,
+                  epochs=epochs,
+                  val_gen=val_gen,
+                  verbose=verbose,
+                  filepath_bestmodel=best_model_file,
+                  filepath_log=train_log)
+# -----------------------------------------------------
