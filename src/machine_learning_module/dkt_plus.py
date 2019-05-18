@@ -18,7 +18,7 @@ class LSTMModel:
         self.model.add(LSTM(units=hidden_units, input_dim=n_exercises*2, return_sequences=True, stateful=True))
         self.model.add(Dropout(0.5))
         self.model.add(TimeDistributed(Dense(n_exercises, activation='sigmoid')))
-        self.model.add(Dense(self.n_exercises, activation='sigmoid'))
+        self.model.add(Dense(self.n_exercises+1, activation='sigmoid'))
         self.model.compile(optimizer='adam', loss='binary_crossentropy')
 
     # def fit(self, X, y, epochs, verbose=0, batch_size=32):
