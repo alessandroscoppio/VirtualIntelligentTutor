@@ -58,45 +58,47 @@ class SequenceConstructor:
 
         return best_exercise
 
-    def expectimax(self, depth):
+    def get_expectimax_exercise(self, depth):
         initial_skill_vector = self.model.predict(self.history)
-        self.tree_search(initial_skill_vector, depth)
+        score, best_exercise = self.tree_search(initial_skill_vector, depth)
+        return best_exercise
 
     def tree_search(self, skill_vector, exercise, depth):
         """
-
+        Expectimax algorithm, with
         :param skill_vector:
         :param exercise:
-        :param depth: only even nunmber of Depth
+        :param depth: only even number of depth
         :return:
         """
         if depth == 0:
             # Take prediction of probabilities after user attempting to solve this exercise.
             skill_vector = self.model.predict(self.history)
             # Evaluate action
-
-            return self.evaluate(skill_vector, 'sum_of_distances')
+            score = self.evaluate(skill_vector, 'sum_of_distances'), exercise
+            return score, exercise
 
         elif depth % 2 == 0:
+            best_exercise = None
             max_score = 0
             # Loop through all exercises
             for new_exercise in self.exercises:
                 # If the exercise is not already solved
                 if new_exercise not in self.history:
                     # Try next exercise
-                    score = self.tree_search(skill_vector, new_exercise, depth - 1)
-
+                    score, _ = self.tree_search(skill_vector, new_exercise, depth - 1)
                     if score > max_score:
                         max_score = score
+                        best_exercise = new_exercise
 
-            return max_score
+            return max_score, best_exercise
 
         else:
             # Simulate that the user solves the exercise
             self.history.append(self.solve_exercise(exercise))
 
             # Get values for succesful sscore
-            succesful_score = self.tree_search(skill_vector, exercise, depth - 1)
+            succesful_score, _ = self.tree_search(skill_vector, exercise, depth - 1)
 
             del self.history[-1]
 
@@ -104,7 +106,7 @@ class SequenceConstructor:
             self.history.append(self.fail_exercise(exercise))
 
             # Get values for unseccesful score
-            unsuccesful_score = self.tree_search(skill_vector, exercise, depth - 1)
+            unsuccesful_score, _ = self.tree_search(skill_vector, exercise, depth - 1)
 
             # Calculate the expected score
             expected_score = skill_vector[exercise] * succesful_score + (
@@ -112,12 +114,17 @@ class SequenceConstructor:
 
             del self.history[-1]
 
-            return expected_score
+            return expected_score, exercise
 
     def get_next_exercise(self):
         return self.exercises_path[-1]
 
     def construct_hot_encoded_vector(self, exercise):
+        """
+        Constructing the hot encoded vector for this exercise
+        :param exercise:
+        :return:
+        """
         hot_encoded_vector = np.zeros(2 * len(exercises))
         hot_encoded_vector[exercise] = 1
         return hot_encoded_vector
@@ -131,7 +138,6 @@ class SequenceConstructor:
     def fail_exercise(self, exercise):
         hot_encoded_vector = np.zeros(2 * len(exercises))
         hot_encoded_vector[exercise] = 1
-        hot_encoded_vector[2 * exercise] = 0
         return hot_encoded_vector
 
     def evaluate(self, new_skills_vector, old_skills_vector, metric):
@@ -149,11 +155,11 @@ class SequenceConstructor:
         """
         return np.sum(new_skills_vector, -old_skill_vector) / len(self.exercises)
 
-    # TODO
+    # TODO 1, 2, 3 find below
+    #   0) Return a good move
     #   1) Implement evaluation of the increase of the least performing exercise
     #   2) Validate that the self.history is working properly
     #   3) Implement method that checks that the exercise is in the history
-
 
 
 if __name__ == "__main__":
