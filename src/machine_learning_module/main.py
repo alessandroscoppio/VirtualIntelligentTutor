@@ -11,7 +11,10 @@ from src.machine_learning_module.dkt_plus import LSTMModel
 
 def warn(*args, **kwargs):
     pass
+
+
 import warnings
+
 warnings.warn = warn
 # --------------------------------------------------------------------------
 
@@ -97,21 +100,21 @@ I also created folders saved_models and logs because the model below requires it
 
 # ------------- The other DKT model -----------------
 from DKTmodel import DKTModel
+
 # Create model
-best_model_file = "saved_models/ASSISTments.best.model.weights.hdf5" # File to save the model.
+best_model_file = "saved_models/ASSISTments.best.model.weights.hdf5"  # File to save the model.
 
-student_model = DKTModel(num_skills=train_gen.num_skills,
-                      num_features=train_gen.feature_dim,
-                      optimizer=optimizer,
-                      hidden_units=lstm_units,
-                      batch_size=batch_size,
-                      dropout_rate=dropout_rate)
-
+student_model = DKTModel(num_skills = train_gen.num_skills,
+                         num_features = train_gen.feature_dim,
+                         optimizer = optimizer,
+                         hidden_units = lstm_units,
+                         batch_size = batch_size,
+                         dropout_rate = dropout_rate)
 
 history = student_model.fit(train_gen,
-                  epochs=epochs,
-                  val_gen=val_gen,
-                  verbose=verbose,
-                  filepath_bestmodel=best_model_file,
-                  filepath_log=train_log)
+                            epochs = epochs,
+                            val_gen = val_gen,
+                            verbose = verbose,
+                            filepath_bestmodel = best_model_file,
+                            filepath_log = train_log)
 # -----------------------------------------------------
