@@ -12,7 +12,7 @@ from Utils import DataGenerator
 
 
 # This method is for internal use. You should not use it outside of this file.
-def model_evaluate(test_gen, model, metrics, verbose = 0):
+def model_evaluate(test_g   en, model, metrics, verbose = 0):
     def predict():
         def get_target_skills(preds, labels):
             target_skills = labels[:, :, 0:test_gen.num_skills]
