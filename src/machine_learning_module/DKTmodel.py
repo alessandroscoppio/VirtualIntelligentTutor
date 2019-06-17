@@ -52,7 +52,7 @@ def model_evaluate(test_gen, model, metrics, verbose=0):
 
         return y_true_t, y_pred_t
 
-    assert (isinstance(test_gen, DataGenerator))
+    # assert (isinstance(test_gen, DataGenerator))
     assert (model is not None)
     assert (metrics is not None)
 
@@ -83,7 +83,7 @@ def model_evaluate(test_gen, model, metrics, verbose=0):
 class MetricsCallback(Callback):
     def __init__(self, data_gen, metrics, verbose=0):
         super(MetricsCallback, self).__init__()
-        assert (isinstance(data_gen, DataGenerator))
+        # assert (isinstance(data_gen, DataGenerator))
         assert (metrics is not None)
 
         self.data_gen = data_gen
@@ -131,14 +131,15 @@ class DKTModel(object):
         self.__model.add(Dropout(dropout_rate))
         self.__model.add(TimeDistributed(Dense(num_skills, activation='sigmoid')))
         self.__model.compile(loss=loss_function, optimizer=optimizer)
+        self.__model.summary()
 
     def load_weights(self, filepath):
         assert(filepath is not None)
         self.__model.load_weights(filepath)
 
     def fit(self, train_gen, epochs, val_gen, verbose=0, filepath_bestmodel=None, filepath_log=None):
-        assert (isinstance(train_gen, DataGenerator))
-        assert (isinstance(val_gen, DataGenerator))
+        # assert (isinstance(train_gen, DataGenerator))
+        # assert (isinstance(val_gen, DataGenerator))
 
         callbacks = []
         callbacks.append(MetricsCallback(val_gen, metrics=['auc','pre','acc']))

@@ -1,7 +1,12 @@
+import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense, LSTM, Dropout, Masking, TimeDistributed
 from keras.layers import Flatten
 from keras.models import load_model
+from keras.utils import Progbar
+from sklearn.metrics import roc_auc_score, accuracy_score, precision_score
+
+from src.machine_learning_module.Utils import DataGenerator
 
 
 class LSTMModel:
@@ -14,16 +19,15 @@ class LSTMModel:
         self.model = Sequential()
 
         # ignore timesteps containing -1s dealing with padding
-        self.model.add(Masking(-1., batch_input_shape = (batch_size, None, 2 * n_exercises)))
-        self.model.add(
-            LSTM(units = hidden_units, input_dim = n_exercises * 2, return_sequences = True, stateful = True))
+        self.model.add(Masking(-1., batch_input_shape=(batch_size, None, 2 * n_exercises)))
+        self.model.add(LSTM(units=hidden_units, return_sequences=True, stateful=True))
         self.model.add(Dropout(0.5))
-        self.model.add(TimeDistributed(Dense(n_exercises, activation = 'sigmoid')))
-        self.model.add(Dense(self.n_exercises + 1, activation = 'sigmoid'))
-        self.model.compile(optimizer = 'adam', loss = 'binary_crossentropy')
+        self.model.add(TimeDistributed(Dense(n_exercises+1, activation='sigmoid')))
+        # self.model.add(Dense(self.n_exercises+1, activation='sigmoid'))
+        self.model.compile(optimizer='adam', loss='binary_crossentropy')
 
-    # def fit(self, X, y, epochs, verbose=0, batch_size=32):
-    def fit(self, train_gen, val_gen, epochs, verbose = 0, batch_size = 32):
+    def fit(self, train_gen, val_gen, epochs, verbose=0, batch_size=32):
+
         # fit model
         # self.history = self.model.fit(X, y, epochs=epochs, verbose=verbose, batch_size=batch_size)
 
