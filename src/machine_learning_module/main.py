@@ -4,14 +4,19 @@
 
 # -- ignore scikit deprecated warnings, there were too many at each step --
 # https://stackoverflow.com/a/33616192/9344265
+from src.machine_learning_module.DKTmodel import model_evaluate
+from src.machine_learning_module.Utils import read_file, split_dataset, DataGenerator
+from src.machine_learning_module.dkt_plus import LSTMModel
+
+
 def warn(*args, **kwargs):
     pass
 import warnings
 warnings.warn = warn
 # --------------------------------------------------------------------------
 
-from Utils import read_file, split_dataset, DataGenerator
-from dkt_plus import LSTMModel
+# from Utils import read_file, split_dataset, DataGenerator
+# from dkt_plus import LSTMModel
 
 train_log = "logs/dktmodel.train.log"  # File to save the training log.
 eval_log = "logs/dktmodel.eval.log"  # File to save the testing log.
@@ -20,7 +25,7 @@ lstm_units = 250  # Number of LSTM units
 batch_size = 20  # Batch size
 epochs = 10  # Number of epochs to train
 dropout_rate = 0.6  # Dropout rate
-verbose = 1  # Verbose = {0,1,2}
+verbose = 2  # Verbose = {0,1,2}
 testing_rate = 0.2  # Portion of data to be used for testing
 validation_rate = 0.2  # Portion of training data to be used for validation
 ''''''
@@ -86,27 +91,27 @@ I have commented out this model and put the one below,
 which is https://github.com/LiangbeiXu/Deep-Knowledge-Tracing/blob/master/src/StudentModel.py
 I also created folders saved_models and logs because the model below requires it.
 '''
-ourModel = LSTMModel(hidden_units=200, batch_size=batch_size, n_exercises=num_problems)
-ourModel.fit(train_gen, val_gen, epochs=5, verbose=2)
-
+# ourModel = LSTMModel(hidden_units=200, batch_size=batch_size, n_exercises=num_problems)
+# ourModel.fit(train_gen, val_gen, epochs=5, verbose=2)
+# model_evaluate(test_gen, ourModel.model, metrics=['auc','acc','pre'], verbose=2)
 
 # ------------- The other DKT model -----------------
-# from DKTmodel import DKTModel
-# # Create model
-# best_model_file = "saved_models/ASSISTments.best.model.weights.hdf5" # File to save the model.
-#
-# student_model = DKTModel(num_skills=train_gen.num_skills,
-#                       num_features=train_gen.feature_dim,
-#                       optimizer=optimizer,
-#                       hidden_units=lstm_units,
-#                       batch_size=batch_size,
-#                       dropout_rate=dropout_rate)
-#
-#
-# history = student_model.fit(train_gen,
-#                   epochs=epochs,
-#                   val_gen=val_gen,
-#                   verbose=verbose,
-#                   filepath_bestmodel=best_model_file,
-#                   filepath_log=train_log)
+from DKTmodel import DKTModel
+# Create model
+best_model_file = "saved_models/ASSISTments.best.model.weights.hdf5" # File to save the model.
+
+student_model = DKTModel(num_skills=train_gen.num_skills,
+                      num_features=train_gen.feature_dim,
+                      optimizer=optimizer,
+                      hidden_units=lstm_units,
+                      batch_size=batch_size,
+                      dropout_rate=dropout_rate)
+
+
+history = student_model.fit(train_gen,
+                  epochs=epochs,
+                  val_gen=val_gen,
+                  verbose=verbose,
+                  filepath_bestmodel=best_model_file,
+                  filepath_log=train_log)
 # -----------------------------------------------------
