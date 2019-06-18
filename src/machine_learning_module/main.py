@@ -4,7 +4,7 @@
 
 # -- ignore scikit deprecated warnings, there were too many at each step --
 # https://stackoverflow.com/a/33616192/9344265
-from src.machine_learning_module.DKTmodel import model_evaluate
+from src.machine_learning_module.dkt_plus import model_evaluate
 from src.machine_learning_module.Utils import read_file, split_dataset, DataGenerator
 from src.machine_learning_module.dkt_plus import LSTMModel
 
@@ -95,9 +95,9 @@ I have commented out this model and put the one below,
 which is https://github.com/LiangbeiXu/Deep-Knowledge-Tracing/blob/master/src/StudentModel.py
 I also created folders saved_models and logs because the model below requires it.
 '''
-# ourModel = LSTMModel(hidden_units=200, batch_size=batch_size, n_exercises=num_problems)
-# ourModel.fit(train_gen, val_gen, epochs=5, verbose=2)
-# model_evaluate(test_gen, ourModel.model, metrics=['auc','acc','pre'], verbose=2)
+ourModel = LSTMModel(hidden_units=200, batch_size=batch_size, n_exercises=train_gen.num_skills)
+ourModel.fit(train_gen, val_gen, epochs=10, verbose=2)
+model_evaluate(test_gen, ourModel.model, metrics=['auc','acc','pre'], verbose=2)
 
 # ------------- The other DKT model -----------------
 from DKTmodel import DKTModel
