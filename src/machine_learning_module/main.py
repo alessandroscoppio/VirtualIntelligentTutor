@@ -4,9 +4,9 @@
 
 # -- ignore scikit deprecated warnings, there were too many at each step --
 # https://stackoverflow.com/a/33616192/9344265
-from src.machine_learning_module.dkt_plus import model_evaluate
-from src.machine_learning_module.Utils import read_file, split_dataset, DataGenerator
-from src.machine_learning_module.dkt_plus import LSTMModel
+from dkt_plus import model_evaluate
+from Utils import read_file, split_dataset, DataGenerator
+from dkt_plus import LSTMModel
 
 
 def warn(*args, **kwargs):
@@ -44,14 +44,16 @@ FIRST WAY OF LOADING DATASET:
 """
 datasets = {"hackerrank": '../machine_learning_module/data/submissions.csv',
             "benchmark": "../machine_learning_module/data/ASSISTments_skill_builder_data.csv"}
-dataset = datasets["hackerrank"] # Dataset path
+#dataset = datasets["hackerrank"] # Dataset path
+dataset = datasets["benchmark"] # Dataset path
+
 dataset, num_problems = read_file(dataset)
 X_train, X_val, X_test, y_train, y_val, y_test = split_dataset(dataset, validation_rate, testing_rate)
 
 # Create generators for training/testing/validation
-train_gen = DataGenerator(X_train[0:10], y_train[0:10], num_problems, batch_size)
-val_gen = DataGenerator(X_val[0:10], y_val[0:10], num_problems, batch_size)
-test_gen = DataGenerator(X_test[0:10], y_test[0:10], num_problems, batch_size)
+train_gen = DataGenerator(X_train, y_train, num_problems, batch_size)
+val_gen = DataGenerator(X_val, y_val, num_problems, batch_size)
+test_gen = DataGenerator(X_test, y_test, num_problems, batch_size)
 
 """
 I have also tried different implementations ways to load data in this fucking module:
@@ -96,26 +98,26 @@ which is https://github.com/LiangbeiXu/Deep-Knowledge-Tracing/blob/master/src/St
 I also created folders saved_models and logs because the model below requires it.
 '''
 ourModel = LSTMModel(hidden_units=200, batch_size=batch_size, n_exercises=train_gen.num_skills)
-ourModel.fit(train_gen, val_gen, epochs=10, verbose=2)
+ourModel.fit(train_gen, val_gen, epochs=50, verbose=2)
 model_evaluate(test_gen, ourModel.model, metrics=['auc','acc','pre'], verbose=2)
 
 # ------------- The other DKT model -----------------
-from DKTmodel import DKTModel
+# from DKTmodel import DKTModel
 
-# Create model
-best_model_file = "saved_models/ASSISTments.best.model.weights.hdf5"  # File to save the model.
+# # Create model
+# best_model_file = "saved_models/ASSISTments.best.model.weights.hdf5"  # File to save the model.
 
-student_model = DKTModel(num_skills = train_gen.num_skills,
-                         num_features = train_gen.feature_dim,
-                         optimizer = optimizer,
-                         hidden_units = lstm_units,
-                         batch_size = batch_size,
-                         dropout_rate = dropout_rate)
+# student_model = DKTModel(num_skills = train_gen.num_skills,
+#                          num_features = train_gen.feature_dim,
+#                          optimizer = optimizer,
+#                          hidden_units = lstm_units,
+#                          batch_size = batch_size,
+#                          dropout_rate = dropout_rate)
 
-history = student_model.fit(train_gen,
-                            epochs = epochs,
-                            val_gen = val_gen,
-                            verbose = verbose,
-                            filepath_bestmodel = best_model_file,
-                            filepath_log = train_log)
+# history = student_model.fit(train_gen,
+#                             epochs = epochs,
+#                             val_gen = val_gen,
+#                             verbose = verbose,
+#                             filepath_bestmodel = best_model_file,
+#                             filepath_log = train_log)
 # -----------------------------------------------------

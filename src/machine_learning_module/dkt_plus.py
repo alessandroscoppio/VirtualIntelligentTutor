@@ -1,13 +1,15 @@
+import os
 import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense, LSTM, Dropout, Masking, TimeDistributed
 from keras.layers import Flatten
 from keras.models import load_model
 from keras.utils import Progbar
+from keras.callbacks import ModelCheckpoint
 from sklearn.metrics import roc_auc_score, accuracy_score, precision_score
 from keras import backend as K
 
-from src.machine_learning_module.Utils import DataGenerator
+from Utils import DataGenerator
 
 '''JUST TO TRY IF IT WORKS, REFACTOR'''
 
@@ -103,7 +105,7 @@ class LSTMModel:
         self.model.add(Dropout(0.5))
         self.model.add(TimeDistributed(Dense(n_exercises, activation='sigmoid')))
         # self.model.add(Dense(self.n_exercises+1, activation='sigmoid'))
-        self.model.compile(optimizer='adam', loss=loss_function)
+        self.model.compile(optimizer='adam', loss=loss_function, metrics=['accuracy'])
         self.model.summary()
 
     def fit(self, train_gen, val_gen, epochs, verbose=2, batch_size=32):
@@ -111,13 +113,17 @@ class LSTMModel:
         # self.history = self.model.fit(X, y, epochs=epochs, verbose=verbose, batch_size=batch_size)
 
         # try to use fit generator to try their dataset with less efforts
+        log_dir = "logs/weights"
+        checkpoint_filename = os.path.join(log_dir, "weights.model")
+        model_checkpoint_callback = ModelCheckpoint(checkpoint_filename, save_best_only=True, verbose=1, monitor="val_loss", mode='min')
+
         self.history = self.model.fit_generator(shuffle=False,
                                                 validation_data=val_gen.get_generator(),
                                                 validation_steps=val_gen.total_steps,
                                                 epochs=epochs,
                                                 steps_per_epoch=train_gen.total_steps,
                                                 generator=train_gen.get_generator(),
-                                                callbacks=None,
+                                                callbacks=[model_checkpoint_callback],
                                                 verbose=verbose)
 
     def predict(self, input):
