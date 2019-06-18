@@ -37,13 +37,14 @@ FIRST WAY OF LOADING DATASET:
  this three lines of code
  (stolen from https://github.com/lccasagrande/Deep-Knowledge-Tracing/blob/master/src/DKT.ipynb)
  load the csv dataset (tp download from github) and creates data generators.
- I modified my model to accept this generator and use fit_generator 
+ I modified my model to accept this generator and usedata_file = {"hackerrank": '../machine_learning_module/data/submissions.csv',
  but at some points there is something that make it break.
  (Reshape your data either using array.reshape(-1, 1) if your data has a single feature
   or array.reshape(1, -1) if it contains a single sample.)
 """
-
-dataset = "data/ASSISTments_skill_builder_data.csv"  # Dataset path
+datasets = {"hackerrank": '../machine_learning_module/data/submissions.csv',
+            "benchmark": "../machine_learning_module/data/ASSISTments_skill_builder_data.csv"}
+dataset = datasets["hackerrank"] # Dataset path
 dataset, num_problems = read_file(dataset)
 X_train, X_val, X_test, y_train, y_val, y_test = split_dataset(dataset, validation_rate, testing_rate)
 
