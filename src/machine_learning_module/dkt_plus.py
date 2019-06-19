@@ -105,7 +105,7 @@ class LSTMModel:
         self.model.add(Dropout(0.5))
         self.model.add(TimeDistributed(Dense(n_exercises, activation='sigmoid')))
         # self.model.add(Dense(self.n_exercises+1, activation='sigmoid'))
-        self.model.compile(optimizer='adam', loss=loss_function, metrics=['accuracy'])
+        self.model.compile(optimizer='adam', loss=loss_function)
         self.model.summary()
 
     def fit(self, train_gen, val_gen, epochs, verbose=2, batch_size=32):
@@ -113,7 +113,7 @@ class LSTMModel:
         # self.history = self.model.fit(X, y, epochs=epochs, verbose=verbose, batch_size=batch_size)
 
         # try to use fit generator to try their dataset with less efforts
-        log_dir = "logs/weights"
+        log_dir = "logs/models"
         checkpoint_filename = os.path.join(log_dir, "weights.model")
         model_checkpoint_callback = ModelCheckpoint(checkpoint_filename, save_best_only=True, verbose=1, monitor="val_loss", mode='min')
         early_stopping_callback = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=1, mode="min")
