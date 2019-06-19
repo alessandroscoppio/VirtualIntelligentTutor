@@ -54,9 +54,9 @@ dataset, num_problems = read_file(dataset)
 X_train, X_val, X_test, y_train, y_val, y_test = split_dataset(dataset, validation_rate, testing_rate)
 
 # Create generators for training/testing/validation
-train_gen = DataGenerator(X_train[:10], y_train[:10], num_problems, batch_size)
-val_gen = DataGenerator(X_val[:10], y_val[:10], num_problems, batch_size)
-test_gen = DataGenerator(X_test[:10], y_test[:10], num_problems, batch_size)
+train_gen = DataGenerator(X_train, y_train, num_problems, batch_size)
+val_gen = DataGenerator(X_val, y_val, num_problems, batch_size)
+test_gen = DataGenerator(X_test, y_test, num_problems, batch_size)
 
 """
 I have also tried different implementations ways to load data in this fucking module:
