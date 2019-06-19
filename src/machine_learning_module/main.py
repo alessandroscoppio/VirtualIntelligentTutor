@@ -43,8 +43,9 @@ FIRST WAY OF LOADING DATASET:
   or array.reshape(1, -1) if it contains a single sample.)
 """
 datasets = {"hackerrank": '../machine_learning_module/data/submissions.csv',
-            "benchmark": "../machine_learning_module/data/ASSISTments_skill_builder_data.csv"}
-dataset = datasets["hackerrank"] # Dataset path
+            "benchmark": "../machine_learning_module/data/ASSISTments_skill_builder_data.csv",
+            "cropped_hackerrank" : "../machine_learning_module/data/submissions_with_students_over_20.csv"}
+dataset = datasets["cropped_hackerrank"] # Dataset path
 #dataset = datasets["benchmark"] # Dataset path
 
 dataset, num_problems = read_file(dataset)
