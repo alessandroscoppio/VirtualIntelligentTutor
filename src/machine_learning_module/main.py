@@ -7,7 +7,7 @@
 from dkt_plus import model_evaluate
 from Utils import read_file, split_dataset, DataGenerator
 from dkt_plus import LSTMModel
-
+import datetime
 
 def warn(*args, **kwargs):
     pass
@@ -45,8 +45,10 @@ FIRST WAY OF LOADING DATASET:
 datasets = {"hackerrank": '../machine_learning_module/data/submissions.csv',
             "benchmark": "../machine_learning_module/data/ASSISTments_skill_builder_data.csv",
             "cropped_hackerrank" : "../machine_learning_module/data/submissions_with_students_over_20.csv"}
-dataset = datasets["cropped_hackerrank"] # Dataset path
-#dataset = datasets["benchmark"] # Dataset path
+
+name_dataset = 'hackerrank'
+# name_dataset = 'benchmark'
+dataset = datasets[name_dataset] # Dataset path
 
 dataset, num_problems = read_file(dataset)
 X_train, X_val, X_test, y_train, y_val, y_test = split_dataset(dataset, validation_rate, testing_rate)
@@ -98,23 +100,28 @@ I have commented out this model and put the one below,
 which is https://github.com/LiangbeiXu/Deep-Knowledge-Tracing/blob/master/src/StudentModel.py
 I also created folders saved_models and logs because the model below requires it.
 '''
+
 ourModel = LSTMModel(hidden_units=200, batch_size=batch_size, n_exercises=train_gen.num_skills)
-ourModel.fit(train_gen, val_gen, epochs=50, verbose=1)
+ourModel.fit(train_gen, val_gen, epochs=100, verbose=1)
 model_evaluate(test_gen, ourModel.model, metrics=['auc','acc','pre'], verbose=2)
+
+now = datetime.datetime.now()
+now.strftime("%Y-%m-%d %H:%M")
+ourModel.save_model(f'{name_dataset}_{epochs}epochs.hdf5')
 
 # ------------- The other DKT model -----------------
 # from DKTmodel import DKTModel
-
-# # Create model
+#
+# # # Create model
 # best_model_file = "saved_models/ASSISTments.best.model.weights.hdf5"  # File to save the model.
-
+#
 # student_model = DKTModel(num_skills = train_gen.num_skills,
 #                          num_features = train_gen.feature_dim,
 #                          optimizer = optimizer,
 #                          hidden_units = lstm_units,
 #                          batch_size = batch_size,
 #                          dropout_rate = dropout_rate)
-
+#
 # history = student_model.fit(train_gen,
 #                             epochs = epochs,
 #                             val_gen = val_gen,

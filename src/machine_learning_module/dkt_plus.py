@@ -134,7 +134,7 @@ class LSTMModel:
         return prediction
 
     def evaluate(self, test_gen, metrics, verbose=2, filepath_log=None):
-        results = model_evaluate(test_gen, self.__model, metrics, verbose)
+        results = model_evaluate(test_gen, self.model, metrics, verbose)
 
         if filepath_log is not None:
             with open(filepath_log, 'w') as fl:
@@ -143,7 +143,7 @@ class LSTMModel:
         return results
 
     def save_model(self, name):
-        self.model.save('saved-models/' + name)
+        self.model.save('saved_models/' + name)
 
     def load_model(self, name):
         self.model = load_model(name)
