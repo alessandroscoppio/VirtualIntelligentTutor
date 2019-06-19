@@ -44,8 +44,8 @@ FIRST WAY OF LOADING DATASET:
 """
 datasets = {"hackerrank": '../machine_learning_module/data/submissions.csv',
             "benchmark": "../machine_learning_module/data/ASSISTments_skill_builder_data.csv"}
-#dataset = datasets["hackerrank"] # Dataset path
-dataset = datasets["benchmark"] # Dataset path
+dataset = datasets["hackerrank"] # Dataset path
+#dataset = datasets["benchmark"] # Dataset path
 
 dataset, num_problems = read_file(dataset)
 X_train, X_val, X_test, y_train, y_val, y_test = split_dataset(dataset, validation_rate, testing_rate)
@@ -98,7 +98,7 @@ which is https://github.com/LiangbeiXu/Deep-Knowledge-Tracing/blob/master/src/St
 I also created folders saved_models and logs because the model below requires it.
 '''
 ourModel = LSTMModel(hidden_units=200, batch_size=batch_size, n_exercises=train_gen.num_skills)
-ourModel.fit(train_gen, val_gen, epochs=50, verbose=2)
+ourModel.fit(train_gen, val_gen, epochs=50, verbose=1)
 model_evaluate(test_gen, ourModel.model, metrics=['auc','acc','pre'], verbose=2)
 
 # ------------- The other DKT model -----------------

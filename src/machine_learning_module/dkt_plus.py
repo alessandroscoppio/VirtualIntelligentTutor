@@ -5,7 +5,7 @@ from keras.layers import Dense, LSTM, Dropout, Masking, TimeDistributed
 from keras.layers import Flatten
 from keras.models import load_model
 from keras.utils import Progbar
-from keras.callbacks import ModelCheckpoint
+from keras.callbacks import ModelCheckpoint, EarlyStopping
 from sklearn.metrics import roc_auc_score, accuracy_score, precision_score
 from keras import backend as K
 
@@ -116,6 +116,7 @@ class LSTMModel:
         log_dir = "logs/weights"
         checkpoint_filename = os.path.join(log_dir, "weights.model")
         model_checkpoint_callback = ModelCheckpoint(checkpoint_filename, save_best_only=True, verbose=1, monitor="val_loss", mode='min')
+        early_stopping_callback = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=1, mode="min")
 
         self.history = self.model.fit_generator(shuffle=False,
                                                 validation_data=val_gen.get_generator(),
@@ -123,7 +124,7 @@ class LSTMModel:
                                                 epochs=epochs,
                                                 steps_per_epoch=train_gen.total_steps,
                                                 generator=train_gen.get_generator(),
-                                                callbacks=[model_checkpoint_callback],
+                                                callbacks=[model_checkpoint_callback, early_stopping_callback],
                                                 verbose=verbose)
 
     def predict(self, input):
