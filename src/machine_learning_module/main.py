@@ -5,7 +5,8 @@
 # -- ignore scikit deprecated warnings, there were too many at each step --
 # https://stackoverflow.com/a/33616192/9344265
 from Utils import read_file, split_dataset, DataGenerator
-from DKT import LSTMModel, model_evaluate
+from DKT import DKTModel, model_evaluate
+from our_model import LSTMModel
 import datetime
 
 
