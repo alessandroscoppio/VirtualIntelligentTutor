@@ -46,7 +46,7 @@ datasets = {"hackerrank": '../machine_learning_module/data/submissions.csv',
             "benchmark": "../machine_learning_module/data/ASSISTments_skill_builder_data.csv",
             "cropped_hackerrank" : "../machine_learning_module/data/submissions_with_students_over_20.csv"}
 
-name_dataset = 'hackerrank'
+name_dataset = 'cropped_hackerrank'
 # name_dataset = 'benchmark'
 dataset = datasets[name_dataset] # Dataset path
 
@@ -103,11 +103,11 @@ I also created folders saved_models and logs because the model below requires it
 
 ourModel = LSTMModel(hidden_units=200, batch_size=batch_size, n_exercises=train_gen.num_skills)
 ourModel.fit(train_gen, val_gen, epochs=100, verbose=1)
+
+# reuse the object and just load the best epoch's weights into it
+ourModel.load_model = 'logs/models/weights.model'
 model_evaluate(test_gen, ourModel.model, metrics=['auc','acc','pre'], verbose=2)
 
-now = datetime.datetime.now()
-now.strftime("%Y-%m-%d %H:%M")
-ourModel.save_model(f'{name_dataset}_{epochs}epochs.hdf5')
 
 # ------------- The other DKT model -----------------
 # from DKTmodel import DKTModel
