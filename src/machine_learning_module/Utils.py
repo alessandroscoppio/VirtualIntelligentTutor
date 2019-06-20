@@ -5,25 +5,25 @@ import numpy as np
 from sklearn.preprocessing import OneHotEncoder
 
 
-def split_dataset(data, validation_rate, testing_rate, shuffle=True):
-    def split(dt):
-        return [[value[0] for value in seq] for seq in dt], [[value[1] for value in seq] for seq in dt]
+def split_tuple(dt):
+    return [[value[0] for value in seq] for seq in dt], [[value[1] for value in seq] for seq in dt]
 
+def split_dataset(data, validation_rate, testing_rate, shuffle=True):
     seqs = data
     if shuffle:
         random.shuffle(seqs)
 
     # Get testing data
     test_idx = random.sample(range(0, len(seqs)-1), int(len(seqs) * testing_rate))
-    X_test, y_test = split([value for idx, value in enumerate(seqs) if idx in test_idx])
+    X_test, y_test = split_tuple([value for idx, value in enumerate(seqs) if idx in test_idx])
     seqs = [value for idx, value in enumerate(seqs) if idx not in test_idx]
 
     # Get validation data
     val_idx = random.sample(range(0, len(seqs) - 1), int(len(seqs) * validation_rate))
-    X_val, y_val = split([value for idx, value in enumerate(seqs) if idx in val_idx])
+    X_val, y_val = split_tuple([value for idx, value in enumerate(seqs) if idx in val_idx])
 
     # Get training data
-    X_train, y_train = split([value for idx, value in enumerate(seqs) if idx not in val_idx])
+    X_train, y_train = split_tuple([value for idx, value in enumerate(seqs) if idx not in val_idx])
 
     return X_train, X_val, X_test, y_train, y_val, y_test
 
@@ -52,7 +52,9 @@ def read_file(dataset_path):
 
             seqs_by_student[seq_idx].append((skill_ids[skill], answer))
 
-    return list(seqs_by_student.values()), num_skill
+    seqs_list = list(seqs_by_student.values())
+
+    return seqs_list, num_skill
 
 
 # This class is responsible for feeding the data into the model following a specific format.
@@ -189,3 +191,5 @@ class DataGenerator(object):
             while not self.done:
                 batch_features, batch_labels = self.next_batch()
                 yield batch_features, batch_labels
+
+
