@@ -127,10 +127,10 @@ class LSTMModel:
                                                 callbacks=[model_checkpoint_callback, early_stopping_callback],
                                                 verbose=verbose)
 
-    def predict(self, input):
-        # demonstrate prediction
-        x_input = input.reshape((1, self.max_n_interactions, 1))
-        prediction = self.model.predict(x_input, verbose=0)
+    def predict_from_student(self, student_submissions):
+
+        student_submissions = np.array(student_submissions).reshape((1, len(student_submissions), 2*self.n_exercises))
+        prediction = self.model.predict(student_submissions, verbose=0)
         return prediction
 
     def evaluate(self, test_gen, metrics, verbose=2, filepath_log=None):

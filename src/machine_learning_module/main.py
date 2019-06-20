@@ -4,6 +4,7 @@
 
 # -- ignore scikit deprecated warnings, there were too many at each step --
 # https://stackoverflow.com/a/33616192/9344265
+import numpy as np
 from Utils import read_file, split_dataset, DataGenerator
 from DKT import DKTModel, model_evaluate
 from our_model import LSTMModel
@@ -52,11 +53,28 @@ test_gen = DataGenerator(X_test, y_test, num_problems, batch_size)
 
 # Build the model
 ourModel = LSTMModel(hidden_units = 200, batch_size = batch_size, n_exercises = train_gen.num_skills)
-ourModel.fit(train_gen, val_gen, epochs = 100, verbose = 1)
+# ourModel.fit(train_gen, val_gen, epochs = 100, verbose = 1)
+
+ourModel.load_model = 'logs/models/weights.model'
+
+# Get batch
+batch_features, batch_labels = test_gen.next_batch()
+
+# Predict on a batch of students
+predictions = ourModel.model.predict_on_batch(batch_features)
+# choose randomly one of them
+stu_n = np.random.randint(20)
+
+# check submissions and predictions for that student
+print(f"Student {stu_n} submissions: ", batch_features[stu_n])
+print(f"Student {stu_n} predictions: ", predictions[stu_n])
+
+
+
 
 # reuse the object and just load the best epoch's weights into it
-ourModel.load_model = 'logs/models/weights.model'
-model_evaluate(test_gen, ourModel.model, metrics = ['auc', 'acc', 'pre'], verbose = 2)
+# ourModel.load_model = 'logs/models/weights.model'
+# model_evaluate(test_gen, ourModel.model, metrics = ['auc', 'acc', 'pre'], verbose = 2)
 
 # ------------- The other DKT model -----------------
 # from DKTmodel import DKTModel

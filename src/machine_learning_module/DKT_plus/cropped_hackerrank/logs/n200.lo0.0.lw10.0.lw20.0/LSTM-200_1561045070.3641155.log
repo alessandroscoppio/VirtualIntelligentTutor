@@ -1,0 +1,91 @@
+Network Configuration:
+batch_size: 32
+hidden_layer_structure: [200]
+learning_rate: 0.01
+keep_prob: 0.5
+rnn_cell: <class 'tensorflow.python.ops.rnn_cell_impl.LSTMCell'>
+lambda_w1: 0.0
+lambda_w2: 0.0
+lambda_o: 0.0
+Num of problems: 1377
+Num of run: 5
+Max num of run: 500
+Keep Prob: 0.5
+Epoch    1, Train AUC: 0.79394, Train Loss: 0.55169
+Epoch    1, Test AUC: 0.82292, Test AUC Curr: 0.82618, Test Loss: 0.51523*
+w_l1: 0.02394079743512491, w_l2: 0.045420030250294105
+m1: -0.04287662352178481, m2: -0.007847022435166953. Saving the model
+time used for this epoch: 88.05850148200989s
+***********
+Epoch    2, Train AUC: 0.83467, Train Loss: 0.50232
+Epoch    2, Test AUC: 0.83091, Test AUC Curr: 0.85991, Test Loss: 0.5053*
+w_l1: 0.03239886105844676, w_l2: 0.05213425847509683
+m1: 0.0030179062437126953, m2: -0.005144683396214251. Saving the model
+time used for this epoch: 88.26421642303467s
+***********
+Epoch    3, Train AUC: 0.83888, Train Loss: 0.49685
+Epoch    3, Test AUC: 0.82237, Test AUC Curr: 0.84173, Test Loss: 0.51907
+time used for this epoch: 62.75707459449768s
+***********
+Epoch    4, Train AUC: 0.84762, Train Loss: 0.4843
+Epoch    4, Test AUC: 0.84129, Test AUC Curr: 0.89209, Test Loss: 0.49403*
+w_l1: 0.042248017086492444, w_l2: 0.06334036560082357
+m1: 0.08693805467999016, m2: 0.01225917734410754. Saving the model
+time used for this epoch: 87.50092434883118s
+***********
+Epoch    5, Train AUC: 0.86317, Train Loss: 0.45977
+Epoch    5, Test AUC: 0.84204, Test AUC Curr: 0.90676, Test Loss: 0.4949*
+w_l1: 0.05350112243703365, w_l2: 0.07756072946126061
+m1: 0.12279525182750989, m2: 0.02210351263464378. Saving the model
+time used for this epoch: 88.06832242012024s
+***********
+Epoch    6, Train AUC: 0.87377, Train Loss: 0.44357
+Epoch    6, Test AUC: 0.8421, Test AUC Curr: 0.90829, Test Loss: 0.49578*
+w_l1: 0.06147084959299441, w_l2: 0.08769239633431286
+m1: 0.16070909619296717, m2: 0.027342999048498243. Saving the model
+time used for this epoch: 88.72665476799011s
+***********
+Epoch    7, Train AUC: 0.8821, Train Loss: 0.42938
+Epoch    7, Test AUC: 0.84015, Test AUC Curr: 0.91342, Test Loss: 0.50351
+time used for this epoch: 63.308759689331055s
+***********
+Epoch    8, Train AUC: 0.89203, Train Loss: 0.41303
+Epoch    8, Test AUC: 0.83716, Test AUC Curr: 0.91091, Test Loss: 0.51253
+time used for this epoch: 59.639742851257324s
+***********
+Epoch    9, Train AUC: 0.90073, Train Loss: 0.39794
+Epoch    9, Test AUC: 0.83706, Test AUC Curr: 0.90781, Test Loss: 0.52095
+time used for this epoch: 60.77855968475342s
+***********
+Epoch   10, Train AUC: 0.90808, Train Loss: 0.3836
+Epoch   10, Test AUC: 0.83397, Test AUC Curr: 0.90592, Test Loss: 0.53263
+time used for this epoch: 63.081167697906494s
+***********
+Epoch   11, Train AUC: 0.9152, Train Loss: 0.36934
+Epoch   11, Test AUC: 0.83165, Test AUC Curr: 0.90159, Test Loss: 0.54572
+time used for this epoch: 63.90008473396301s
+***********
+Epoch   12, Train AUC: 0.92167, Train Loss: 0.35558
+Epoch   12, Test AUC: 0.82851, Test AUC Curr: 0.89839, Test Loss: 0.55622
+time used for this epoch: 62.15271973609924s
+***********
+Epoch   13, Train AUC: 0.92741, Train Loss: 0.34442
+Epoch   13, Test AUC: 0.82483, Test AUC Curr: 0.89456, Test Loss: 0.56903
+time used for this epoch: 62.85793399810791s
+***********
+Epoch   14, Train AUC: 0.92751, Train Loss: 0.34282
+Epoch   14, Test AUC: 0.82271, Test AUC Curr: 0.8945, Test Loss: 0.57231
+time used for this epoch: 62.83912110328674s
+***********
+Epoch   15, Train AUC: 0.93521, Train Loss: 0.32488
+Epoch   15, Test AUC: 0.8192, Test AUC Curr: 0.88862, Test Loss: 0.58927
+time used for this epoch: 63.98587155342102s
+***********
+Epoch   16, Train AUC: 0.94065, Train Loss: 0.31213
+Epoch   16, Test AUC: 0.81919, Test AUC Curr: 0.88753, Test Loss: 0.60541
+time used for this epoch: 61.92525601387024s
+***********
+No improvement shown in 10 epochs. Quit Training.
+The best testing result occured at: 5-th epoch, with testing AUC: 0.8421
+*********************************
+Epoch    1, Train AUC: 0.79155, Train Loss: 0.55253
