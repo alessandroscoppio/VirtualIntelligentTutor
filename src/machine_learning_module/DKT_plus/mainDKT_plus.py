@@ -57,7 +57,7 @@ parser.add_argument('--test_file', type = str, default = 'skill_id_test.csv',
                     help = "train data file, default as 'skill_id_test.csv'.")
 parser.add_argument("-csd", "--ckpt_save_dir", type = str, default = None,
                     help = "checkpoint save directory")
-parser.add_argument('--dataset', type = str, default = 'a2009')
+parser.add_argument('--dataset', type = str, default = 'cropped_hackerrank')
 args = parser.parse_args()
 
 rnn_cells = {
@@ -96,9 +96,9 @@ elif dataset == 'a2009':
     train_path = './data/skill_id_train.csv'
     test_path = './data/skill_id_test.csv'
     save_dir_prefix = './a2009/'
-elif dataset == 'cropped_hacckerrank':
-    train_path = '../machine_learning_module/data/submissions_with_students_over_20.csv'
-    test_path = '../machine_learning_module/data/submissions_with_students_over_20.csv' # TODO split into test/train
+elif dataset == 'cropped_hackerrank':
+    train_path = '../data/submissions_with_students_over_20.csv'
+    test_path = '../data/submissions_with_students_over_20.csv' # TODO split into test/train
     save_dir_prefix = './cropped_hackerrank'
 
 

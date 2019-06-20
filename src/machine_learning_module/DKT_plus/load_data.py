@@ -3,6 +3,7 @@ import csv
 import numpy as np
 from sklearn.utils import shuffle
 from src.machine_learning_module.Utils import read_file, split_tuple
+import random
 
 
 def pad(data, target_length, target_value = 0):
@@ -104,6 +105,7 @@ class BatchGenerator:
     def shuffle(self):
         self.problem_seqs, self.correct_seqs = shuffle(self.problem_seqs, self.correct_seqs, random_state = 42)
 
+
 def read_old_format_data(filename):
     raw_data, num_problems = read_file(filename)
     X, y = split_tuple([value for idx, value in enumerate(raw_data)])
@@ -131,7 +133,8 @@ def read_old_format_data(filename):
     print("The number of students is {0}".format(len(tuples)))
     print("Finish reading data.")
 
-    return tuples
+    return tuples, num_problems, max_seq_length
+
 
 def read_data_from_csv(filename):
     # read the csv file
@@ -188,12 +191,65 @@ def read_data_from_csv(filename):
     return tuples, num_problems, max_seq_length
 
 
+def split_dataset(data, validation_rate, testing_rate, shuffle = True):
+    seqs = data
+    if shuffle:
+        random.shuffle(seqs)
+
+    # Get testing data
+    test_idx = random.sample(range(0, len(seqs) - 1), int(len(seqs) * testing_rate))
+    X_test, y_test = split_tuple([value for idx, value in enumerate(seqs) if idx in test_idx])
+    seqs = [value for idx, value in enumerate(seqs) if idx not in test_idx]
+
+    # Get validation data
+    val_idx = random.sample(range(0, len(seqs) - 1), int(len(seqs) * validation_rate))
+    X_val, y_val = split_tuple([value for idx, value in enumerate(seqs) if idx in val_idx])
+
+    # Get training data
+    X_train, y_train = split_tuple([value for idx, value in enumerate(seqs) if idx not in val_idx])
+
+    return X_train, X_val, X_test, y_train, y_val, y_test
+
+
+def test_train_split(tuples, testing_rate, shuffle = True):
+    seqs = tuples
+    if shuffle:
+        random.shuffle(seqs)
+
+    test_idx = random.sample(range(0, len(seqs) - 1), int(len(seqs) * testing_rate))
+    students_test, students_train = [], []
+    max_seq_length_train = 0
+    max_seq_length_test = 0
+
+    for idx, value in enumerate(seqs):
+
+        if idx in test_idx:
+            students_test.append(value)
+
+            if len(value[1]) > max_seq_length_test:
+                max_seq_length_test = len(value[1])
+
+        else:
+            students_train.append(value)
+
+            if len(value[1]) > max_seq_length_train:
+                max_seq_length_train = len(value[1])
+
+    return students_test, students_train, max_seq_length_test, max_seq_length_train
+
+
 class DKTData:
     def __init__(self, train_path, test_path, batch_size = 32):
-        self.students_train, num_problems_train, max_seq_length_train = read_data_from_csv(train_path)
-        self.students_test, num_problems_test, max_seq_length_test = read_data_from_csv(test_path)
-        self.num_problems = max(num_problems_test, num_problems_train)
-        self.max_seq_length = max(max_seq_length_train, max_seq_length_test)
+
+        # Temporary solution when we have the same file for train and test
+        if train_path == test_path:
+            tuples, self.num_problems, self.max_seq_length = read_old_format_data(train_path)
+            self.students_test, self.students_train, max_seq_length_test, max_seq_length_train = test_train_split(tuples, 0.2)
+        else:
+            self.students_train, num_problems_train, max_seq_length_train = read_data_from_csv(train_path)
+            self.students_test, num_problems_test, max_seq_length_test = read_data_from_csv(test_path)
+            self.num_problems = max(num_problems_test, num_problems_train)
+            self.max_seq_length = max(max_seq_length_train, max_seq_length_test)
 
         problem_seqs = [student[1] for student in self.students_train]
         correct_seqs = [student[2] for student in self.students_train]
