@@ -8,13 +8,14 @@ from sklearn.preprocessing import OneHotEncoder
 def split_tuple(dt):
     return [[value[0] for value in seq] for seq in dt], [[value[1] for value in seq] for seq in dt]
 
+
 def split_dataset(data, validation_rate, testing_rate, shuffle=True):
     seqs = data
     if shuffle:
         random.shuffle(seqs)
 
     # Get testing data
-    test_idx = random.sample(range(0, len(seqs)-1), int(len(seqs) * testing_rate))
+    test_idx = random.sample(range(0, len(seqs) - 1), int(len(seqs) * testing_rate))
     X_test, y_test = split_tuple([value for idx, value in enumerate(seqs) if idx in test_idx])
     seqs = [value for idx, value in enumerate(seqs) if idx not in test_idx]
 
@@ -35,7 +36,8 @@ def read_file(dataset_path):
     data.dropna(subset=['skill_id'], inplace=True)
 
     # Step 2 - Convert to sequence by student id
-    students_seq = data.groupby("user_id", as_index=True)["skill_id", "correct"].apply(lambda x: x.values.tolist()).tolist()
+    students_seq = data.groupby("user_id", as_index=True)["skill_id", "correct"].apply(
+        lambda x: x.values.tolist()).tolist()
 
     # Step 3 - Rearrange the skill_id
     seqs_by_student = {}
@@ -113,8 +115,10 @@ class DataGenerator(object):
 
         def pad_sequences(x, y):
             max_seq_steps = max([len(seq) for seq in x])
-            x = self.__pad_sequences(x, padding='pre', maxlen=max_seq_steps, dim=self.feature_dim, value=-1.0, dtype='float')
-            y = self.__pad_sequences(y, padding='pre', maxlen=max_seq_steps, dim=self.label_dim, value=-1.0, dtype='float')
+            x = self.__pad_sequences(x, padding='pre', maxlen=max_seq_steps, dim=self.feature_dim, value=-1.0,
+                                     dtype='float')
+            y = self.__pad_sequences(y, padding='pre', maxlen=max_seq_steps, dim=self.label_dim, value=-1.0,
+                                     dtype='float')
 
             return x, y
 
@@ -136,9 +140,9 @@ class DataGenerator(object):
                     skill_answer = skill_value * 2 + answer
                     skill_answer = np.array([skill_answer])
                     skill_value = np.array([skill_value])
-                    skill_answer = skill_answer.reshape(-1,1)
-                    skill_value = skill_value.reshape(-1,1)
-                    
+                    skill_answer = skill_answer.reshape(-1, 1)
+                    skill_value = skill_value.reshape(-1, 1)
+
                     x_data = self.feature_encoder.fit_transform(skill_answer)[0]
 
                     # Encode label
@@ -151,7 +155,7 @@ class DataGenerator(object):
 
             return x, y
 
-        assert(~self.done)
+        assert (~self.done)
 
         start_pos = self.step * self.batch_size
         end_pos = (self.step + 1) * self.batch_size
@@ -191,5 +195,3 @@ class DataGenerator(object):
             while not self.done:
                 batch_features, batch_labels = self.next_batch()
                 yield batch_features, batch_labels
-
-
