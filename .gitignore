@@ -3,3 +3,4 @@
 src/machine_learning_module/__pycache__/
 
 src/machine_learning_module/weights\.model
+__pycache__/
