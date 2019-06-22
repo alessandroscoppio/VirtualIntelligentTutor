@@ -144,7 +144,12 @@ def main():
     # close the session
     sess.close()
 
-def build_model(num_problems):
+def build_model(path_to_model ,num_problems):
+    """
+    Method to build and extract a model
+    :param num_problems:
+    :return:
+    """
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
     sess = tf.Session(config = config)
@@ -158,7 +163,7 @@ def build_model(num_problems):
     # run optimization of the created model
     dkt.model.build_graph()
     # dkt.run_optimization()
-    dkt.load_model_by_name('DKT_plus/cropped_hackerrank/checkpoints/n200.lo0.0.lw10.0.lw20.0/run_2/LSTM-200/LSTM-200')
+    dkt.load_model_by_name(path_to_model)
     return dkt, sess
 
 

@@ -52,28 +52,28 @@ class Experimentator():
         return final_batch, answers_batch
 
 
-models = {"DKT": 'DKT_plus/cropped_hackerrank/checkpoints/n200.lo0.0.lw10.0.lw20.0/run_2/LSTM-200/LSTM-200',
-          }
+models = {"DKT": "../machine_learning_module/DKT_plus/cropped_hackerrank/checkpoints/n200.lo0.0.lw10.0.lw20.0/run_2/LSTM-200/LSTM-200",
+          "DKR+": None}
 
-#
-# test_ex_list = [8] * 20
-# test_ex_list.extend([10] * 20)
-# test_answer_list = [0] * 40
-# test_answer_list[19] = 1
-# test_answer_list[18] = 1
-# test_answer_list[17] = 1
-#
-# model, sess = build_model(models, 1377)
-#
-# student_id = 0
-#
-# experimentator = Experimentator(model)
-# batch, answers = experimentator.build_testing_batch(test_ex_list, test_answer_list, 5, 100)
-# result = model.predict_one_student([batch[student_id]], [answers[student_id]])
-# plt.figure(figsize = (15, 2))
-# dkt_fig = model.plot_output_layer(problem_seq = batch[student_id], correct_seq = answers[student_id])
-# figure = dkt_fig.get_figure()
-# figure.savefig('dkt_id1.pdf', bbox_inches = 'tight')  # , bbox_extra_artist=[lgd])
-# plt.show()
-#
-# sess.close()
+
+test_ex_list = [8] * 20
+test_ex_list.extend([10] * 20)
+test_answer_list = [0] * 40
+test_answer_list[19] = 1
+test_answer_list[18] = 1
+test_answer_list[17] = 1
+
+model, sess = build_model(models["DKT"], 1377)
+
+student_id = 0
+
+experimentator = Experimentator(model)
+batch, answers = experimentator.build_testing_batch(test_ex_list, test_answer_list, 5, 100)
+result = model.predict_one_student([batch[student_id]], [answers[student_id]])
+plt.figure(figsize = (15, 2))
+dkt_fig = model.plot_output_layer(problem_seq = batch[student_id], correct_seq = answers[student_id])
+figure = dkt_fig.get_figure()
+figure.savefig('dkt_id1.pdf', bbox_inches = 'tight')  # , bbox_extra_artist=[lgd])
+plt.show()
+
+sess.close()
