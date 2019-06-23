@@ -31,17 +31,19 @@ class Experimentator():
             sum = 0
             exercies_sequence = []
             answers_sequence = []
-            sequence_len = np.random.randint(3, max_length)
+            sequence_len = max_length
 
             while sum < sequence_len - 1:
 
                 num_of_attempts = np.random.randint(1, sequence_len - sum)
                 exercise = np.random.randint(0, num_of_exercises)
                 attempts = [exercise] * num_of_attempts
+                answers = [0] * num_of_attempts
+
+                answers[-1] = np.random.choice([0, 1])
+                answers_sequence.extend(answers)
                 exercies_sequence.extend(attempts)
                 sum += num_of_attempts
-                answers_sequence = [0] * len(exercies_sequence)
-                answers_sequence[-1] = np.random.choice([0, 1])
 
             final_batch.append(exercies_sequence)
             answers_batch.append(answers_sequence)
@@ -52,28 +54,31 @@ class Experimentator():
         return final_batch, answers_batch
 
 
-models = {"DKT": "../machine_learning_module/DKT_plus/cropped_hackerrank/checkpoints/n200.lo0.0.lw10.0.lw20.0/run_2/LSTM-200/LSTM-200",
-          "DKR+": None}
+models = {
+    "DKT": "../machine_learning_module/DKT_plus/cropped_hackerrank/checkpoints/n200.lo0.0.lw10.0.lw20.0/run_1/LSTM-200/LSTM-200",
+    "DKT+": "../machine_learning_module/DKT_plus/cropped_hackerrank/checkpoints/DKT_regularization/LSTM-200/LSTM-200"}
+num_of_exercises = 1377
+model_name = "DKT"
 
-
-test_ex_list = [8] * 20
-test_ex_list.extend([10] * 20)
-test_answer_list = [0] * 40
+test_ex_list = [8] * 10
+test_ex_list.extend([10] * 10)
+test_ex_list.extend([12] * 10)
+test_answer_list = [0] * 30
+test_answer_list[9] = 1
+test_answer_list[8] = 1
 test_answer_list[19] = 1
 test_answer_list[18] = 1
-test_answer_list[17] = 1
+test_answer_list[29] = 1
+test_answer_list[28] = 1
+student_id = -1
 
-model, sess = build_model(models["DKT"], 1377)
-
-student_id = 0
-
+model, sess = build_model(models[model_name], num_of_exercises)
 experimentator = Experimentator(model)
 batch, answers = experimentator.build_testing_batch(test_ex_list, test_answer_list, 5, 100)
 result = model.predict_one_student([batch[student_id]], [answers[student_id]])
 plt.figure(figsize = (15, 2))
 dkt_fig = model.plot_output_layer(problem_seq = batch[student_id], correct_seq = answers[student_id])
 figure = dkt_fig.get_figure()
-figure.savefig('dkt_id1.pdf', bbox_inches = 'tight')  # , bbox_extra_artist=[lgd])
-plt.show()
-
+figure.savefig(model_name + 'result.pdf', bbox_inches = 'tight')  # , bbox_extra_artist=[lgd])
 sess.close()
+
