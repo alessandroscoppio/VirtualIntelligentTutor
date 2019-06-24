@@ -99,6 +99,8 @@ class DKT(object):
             y_true += [t for t in _target_labels]
             loss = (iteration - 1) / iteration * loss + _loss / iteration
             iteration += 1
+            if loss > 1 or loss == 0:
+                print("------------------PROBLEM----------------")
         try:
             fpr, tpr, thres = roc_curve(y_true, y_pred, pos_label=1)
             auc_score = auc(fpr, tpr)
@@ -149,12 +151,18 @@ class DKT(object):
             y_true_current += [t for t in _target_labels_current]
             loss = (iteration - 1) / iteration * loss + _loss / iteration
             iteration += 1
+            if loss > 1 or loss == 0:
+                print("------------------PROBLEM----------------")
+
         try:
             fpr, tpr, thres = roc_curve(y_true, y_pred, pos_label=1)
             auc_score = auc(fpr, tpr)
             fpr, tpr, thres = roc_curve(y_true_current, y_pred_current, pos_label=1)
             auc_score_current = auc(fpr, tpr)
         except ValueError:
+            print("y_true: ", y_true)
+            print("y_pred: ", y_pred)
+            print("auc_score:  ", auc_score)
             self._log("Value Error is encountered during finding the auc_score. Assign the AUC to 0 now.")
             auc_score = 0.0
             auc_score_current = 0.0

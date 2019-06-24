@@ -9,6 +9,11 @@ def split_tuple(dt):
     return [[value[0] for value in seq] for seq in dt], [[value[1] for value in seq] for seq in dt]
 
 
+def split_tuple_diff(dt):
+    return [[value[0] for value in seq] for seq in dt], [[value[1] for value in seq] for seq in dt], [
+        [value[2] for value in seq] for seq in dt]
+
+
 def split_dataset(data, validation_rate, testing_rate, shuffle=True):
     seqs = data
     if shuffle:
@@ -16,17 +21,17 @@ def split_dataset(data, validation_rate, testing_rate, shuffle=True):
 
     # Get testing data
     test_idx = random.sample(range(0, len(seqs) - 1), int(len(seqs) * testing_rate))
-    X_test, y_test = split_tuple([value for idx, value in enumerate(seqs) if idx in test_idx])
+    X_test, y_test, diff_test = split_tuple_diff([value for idx, value in enumerate(seqs) if idx in test_idx])
     seqs = [value for idx, value in enumerate(seqs) if idx not in test_idx]
 
     # Get validation data
     val_idx = random.sample(range(0, len(seqs) - 1), int(len(seqs) * validation_rate))
-    X_val, y_val = split_tuple([value for idx, value in enumerate(seqs) if idx in val_idx])
+    X_val, y_val, diff_val = split_tuple_diff([value for idx, value in enumerate(seqs) if idx in val_idx])
 
     # Get training data
-    X_train, y_train = split_tuple([value for idx, value in enumerate(seqs) if idx not in val_idx])
+    X_train, y_train, diff_train = split_tuple_diff([value for idx, value in enumerate(seqs) if idx not in val_idx])
 
-    return X_train, X_val, X_test, y_train, y_val, y_test
+    return X_train, X_val, X_test, y_train, y_val, y_test, diff_train, diff_val, diff_test
 
 
 def read_file(dataset_path):
@@ -36,7 +41,7 @@ def read_file(dataset_path):
     data.dropna(subset=['skill_id'], inplace=True)
 
     # Step 2 - Convert to sequence by student id
-    students_seq = data.groupby("user_id", as_index=True)["skill_id", "correct"].apply(
+    students_seq = data.groupby("user_id", as_index=True)["skill_id", "correct", "difficulty"].apply(
         lambda x: x.values.tolist()).tolist()
 
     # Step 3 - Rearrange the skill_id
@@ -45,14 +50,14 @@ def read_file(dataset_path):
     num_skill = 0
 
     for seq_idx, seq in enumerate(students_seq):
-        for (skill, answer) in seq:
+        for (skill, answer, difficulty) in seq:
             if seq_idx not in seqs_by_student:
                 seqs_by_student[seq_idx] = []
             if skill not in skill_ids:
                 skill_ids[skill] = num_skill
                 num_skill += 1
 
-            seqs_by_student[seq_idx].append((skill_ids[skill], answer))
+            seqs_by_student[seq_idx].append((skill_ids[skill], answer, difficulty))
 
     seqs_list = list(seqs_by_student.values())
 
@@ -61,15 +66,17 @@ def read_file(dataset_path):
 
 # This class is responsible for feeding the data into the model following a specific format.
 class DataGenerator(object):
-    def __init__(self, features, labels, num_skills, batch_size):
+    def __init__(self, features, difficulties, labels, num_skills, batch_size):
         self.features = features
         self.labels = labels
+        self.difficulties = difficulties
         self.num_skills = num_skills
         self.batch_size = batch_size
 
         self.step = 0
         self.done = False
-        self.feature_dim = num_skills * 2
+        # self.feature_dim = num_skills * 2
+        self.feature_dim = num_skills * 2 + 1  # last feature is difficulty
         self.label_dim = num_skills + 1
         self.features_len = len(features)
         self.total_steps = int(math.ceil(float(self.features_len) / self.batch_size))
@@ -122,7 +129,7 @@ class DataGenerator(object):
 
             return x, y
 
-        def encode_batch(batch_questions, batch_answers):
+        def encode_batch(batch_questions, batch_answers, batch_difficulties):
             x = []
             y = []
             for idx, questions in enumerate(batch_questions):
@@ -131,19 +138,24 @@ class DataGenerator(object):
 
                 x_data = np.zeros(self.feature_dim, dtype=int)
                 answers = batch_answers[idx]
+                # difficulties = np.array(batch_questions[idx])[:, 2]
+                difficulties = batch_difficulties[idx]
 
                 for skill_index, skill_value in enumerate(questions):
                     answer = answers[skill_index]
+                    difficulty = difficulties[skill_index]
 
                     # Encode skill_id
                     x_student.append(x_data)
                     skill_answer = skill_value * 2 + answer
+                    # skill_answer = np.concatenate(skill_answer, difficulty)
                     skill_answer = np.array([skill_answer])
                     skill_value = np.array([skill_value])
                     skill_answer = skill_answer.reshape(-1, 1)
                     skill_value = skill_value.reshape(-1, 1)
 
                     x_data = self.feature_encoder.fit_transform(skill_answer)[0]
+                    x_data = np.append(x_data, difficulty)
 
                     # Encode label
                     y_data = self.label_encoder.fit_transform(skill_value)[0]
@@ -165,7 +177,8 @@ class DataGenerator(object):
             end_pos = self.features_len
 
         # Apply one-hot encoding
-        x_batch, y_batch = encode_batch(self.features[start_pos:end_pos], self.labels[start_pos:end_pos])
+        x_batch, y_batch = encode_batch(self.features[start_pos:end_pos], self.labels[start_pos:end_pos],
+                                        self.difficulties[start_pos:end_pos])
 
         # Fill up incomplete batch
         x_batch, y_batch = fill_batches(x_batch, y_batch)

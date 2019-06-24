@@ -2,12 +2,12 @@ import os
 import csv
 import numpy as np
 from sklearn.utils import shuffle
-from src.machine_learning_module.Utils import read_file, split_tuple
+from src.machine_learning_module.Utils import read_file, split_tuple, split_tuple_diff
 import random
 
 
-def pad(data, target_length, target_value = 0):
-    return np.pad(data, (0, target_length - len(data)), 'constant', constant_values = target_value)
+def pad(data, target_length, target_value=0):
+    return np.pad(data, (0, target_length - len(data)), 'constant', constant_values=target_value)
 
 
 def one_hot(indices, depth):
@@ -16,7 +16,7 @@ def one_hot(indices, depth):
 
 
 class OriginalInputProcessor(object):
-    def process_problems_and_corrects(self, problem_seqs, correct_seqs, num_problems, is_train = True):
+    def process_problems_and_corrects(self, problem_seqs, correct_seqs, difficu_seqs, num_problems, is_train=True):
         """
         This function aims to process the problem sequence and the correct sequence into a DKT feedable X and y.
         :param problem_seqs: it is in shape [batch_size, None]
@@ -25,8 +25,9 @@ class OriginalInputProcessor(object):
         """
         # pad the sequence with the maximum sequence length
         max_seq_length = max([len(problem) for problem in problem_seqs])
-        problem_seqs_pad = np.array([pad(problem, max_seq_length, target_value = -1) for problem in problem_seqs])
-        correct_seqs_pad = np.array([pad(correct, max_seq_length, target_value = -1) for correct in correct_seqs])
+        problem_seqs_pad = np.array([pad(problem, max_seq_length, target_value=-1) for problem in problem_seqs])
+        correct_seqs_pad = np.array([pad(correct, max_seq_length, target_value=-1) for correct in correct_seqs])
+        difficu_seqs_pad = np.array([pad(difficu, max_seq_length, target_value=0) for difficu in difficu_seqs])
 
         # find the correct seqs matrix as the following way:
         # Let problem_seq = [1,3,2,-1,-1] as a and correct_seq = [1,0,1,-1,-1] as b, which are padded already
@@ -38,22 +39,27 @@ class OriginalInputProcessor(object):
         correct_seqs_pad = temp
 
         # one hot encode the information
-        problem_seqs_oh = one_hot(problem_seqs_pad, depth = num_problems)
-        correct_seqs_oh = one_hot(correct_seqs_pad, depth = num_problems)
+        problem_seqs_oh = one_hot(problem_seqs_pad, depth=num_problems)
+        correct_seqs_oh = one_hot(correct_seqs_pad, depth=num_problems)
+        # difficu_seqs_oh = one_hot(difficu_seqs_pad, depth=num_problems)
 
         # slice out the x and y
         if is_train:
             x_problem_seqs = problem_seqs_oh[:, :-1]
             x_correct_seqs = correct_seqs_oh[:, :-1]
+            x_difficu_seqs = difficu_seqs_pad[:, :-1]
             y_problem_seqs = problem_seqs_oh[:, 1:]
             y_correct_seqs = correct_seqs_oh[:, 1:]
         else:
             x_problem_seqs = problem_seqs_oh[:, :]
             x_correct_seqs = correct_seqs_oh[:, :]
+            x_difficu_seqs = difficu_seqs_pad[:, :]
             y_problem_seqs = problem_seqs_oh[:, :]
             y_correct_seqs = correct_seqs_oh[:, :]
 
-        X = np.concatenate((x_problem_seqs, x_correct_seqs), axis = 2)
+        X = np.concatenate((x_problem_seqs, x_correct_seqs), axis=2)
+        X = np.dstack((X, x_difficu_seqs))
+         # = np.dstack((X, x_difficu_seqs))
 
         result = (X, y_problem_seqs, y_correct_seqs)
         return result
@@ -64,11 +70,13 @@ class BatchGenerator:
     Generate batch for DKT model
     """
 
-    def __init__(self, problem_seqs, correct_seqs, num_problems, batch_size, input_processor = OriginalInputProcessor(),
+    def __init__(self, problem_seqs, correct_seqs, difficu_seqs, num_problems, batch_size,
+                 input_processor=OriginalInputProcessor(),
                  **kwargs):
         self.cursor = 0  # point to the current batch index
         self.problem_seqs = problem_seqs
         self.correct_seqs = correct_seqs
+        self.difficu_seqs = difficu_seqs
         self.batch_size = batch_size
         self.num_problems = num_problems
         self.num_samples = len(problem_seqs)
@@ -76,17 +84,19 @@ class BatchGenerator:
         self.input_processor = input_processor
         self._current_batch = None
 
-    def next_batch(self, is_train = True):
+    def next_batch(self, is_train=True):
         start_idx = self.cursor * self.batch_size
         end_idx = min((self.cursor + 1) * self.batch_size, self.num_samples)
         problem_seqs = self.problem_seqs[start_idx:end_idx]
         correct_seqs = self.correct_seqs[start_idx:end_idx]
+        difficu_seqs = self.difficu_seqs[start_idx:end_idx]
 
         # x_problem_seqs, x_correct_seqs, y_problem_seqs, y_correct_seqs
         self._current_batch = self.input_processor.process_problems_and_corrects(problem_seqs,
                                                                                  correct_seqs,
+                                                                                 difficu_seqs,
                                                                                  self.num_problems,
-                                                                                 is_train = is_train)
+                                                                                 is_train=is_train)
         self._update_cursor()
         return self._current_batch
 
@@ -103,12 +113,12 @@ class BatchGenerator:
         self.cursor = 0
 
     def shuffle(self):
-        self.problem_seqs, self.correct_seqs = shuffle(self.problem_seqs, self.correct_seqs, random_state = 42)
+        self.problem_seqs, self.correct_seqs = shuffle(self.problem_seqs, self.correct_seqs, random_state=42)
 
 
 def read_old_format_data(filename):
     raw_data, num_problems = read_file(filename)
-    X, y = split_tuple([value for idx, value in enumerate(raw_data)])
+    X, y, diff = split_tuple_diff([value for idx, value in enumerate(raw_data)])
 
     max_seq_length = 0
     tuples = []
@@ -121,7 +131,7 @@ def read_old_format_data(filename):
             skipped_students += 1
             continue
 
-        new_student = (seq_length, X[i], y[i])
+        new_student = (seq_length, X[i], y[i], diff[i])
         tuples.append(new_student)
 
         if max_seq_length < seq_length:
@@ -141,13 +151,13 @@ def read_data_from_csv(filename):
     rows = []
     with open(filename, 'r') as f:
         print("Reading {0}".format(filename))
-        reader = csv.reader(f, delimiter = ',')
+        reader = csv.reader(f, delimiter=',')
         for row in reader:
             rows.append(row)
         print("{0} lines was read".format(len(rows)))
 
     # tuples stores the student answering sequence as
-    # ([num_problems_answered], [problem_ids], [is_corrects])
+    # ([num_problems_answered], [problem_ids], [is_corrects], [difficulties])
     max_seq_length = 0
     num_problems = 0
     tuples = []
@@ -161,6 +171,7 @@ def read_data_from_csv(filename):
 
         problem_seq = rows[i + 1]
         correct_seq = rows[i + 2]
+        difficu_seq = rows[i + 3]
 
         invalid_ids_loc = [i for i, pid in enumerate(problem_seq) if pid == '']
         for invalid_loc in invalid_ids_loc:
@@ -191,7 +202,7 @@ def read_data_from_csv(filename):
     return tuples, num_problems, max_seq_length
 
 
-def split_dataset(data, validation_rate, testing_rate, shuffle = True):
+def split_dataset(data, validation_rate, testing_rate, shuffle=True):
     seqs = data
     if shuffle:
         random.shuffle(seqs)
@@ -211,7 +222,7 @@ def split_dataset(data, validation_rate, testing_rate, shuffle = True):
     return X_train, X_val, X_test, y_train, y_val, y_test
 
 
-def test_train_split(tuples, testing_rate, shuffle = True):
+def test_train_split(tuples, testing_rate, shuffle=True):
     seqs = tuples
     if shuffle:
         random.shuffle(seqs)
@@ -239,12 +250,13 @@ def test_train_split(tuples, testing_rate, shuffle = True):
 
 
 class DKTData:
-    def __init__(self, train_path, test_path, batch_size = 32):
+    def __init__(self, train_path, test_path, batch_size=32):
 
         # Temporary solution when we have the same file for train and test
         if train_path == test_path:
             tuples, self.num_problems, self.max_seq_length = read_old_format_data(train_path)
-            self.students_test, self.students_train, max_seq_length_test, max_seq_length_train = test_train_split(tuples, 0.2)
+            self.students_test, self.students_train, max_seq_length_test, max_seq_length_train = test_train_split(
+                tuples, 0.2)
         else:
             self.students_train, num_problems_train, max_seq_length_train = read_data_from_csv(train_path)
             self.students_test, num_problems_test, max_seq_length_test = read_data_from_csv(test_path)
@@ -253,8 +265,13 @@ class DKTData:
 
         problem_seqs = [student[1] for student in self.students_train]
         correct_seqs = [student[2] for student in self.students_train]
-        self.train = BatchGenerator(problem_seqs, correct_seqs, self.num_problems, batch_size)
+        difficu_seqs = [student[3] for student in self.students_train]
+
+
+        self.train = BatchGenerator(problem_seqs, correct_seqs, difficu_seqs, self.num_problems, batch_size)
 
         problem_seqs = [student[1] for student in self.students_test]
         correct_seqs = [student[2] for student in self.students_test]
-        self.test = BatchGenerator(problem_seqs, correct_seqs, self.num_problems, batch_size)
+        difficu_seqs = [student[3] for student in self.students_test]
+
+        self.test = BatchGenerator(problem_seqs, correct_seqs, difficu_seqs, self.num_problems, batch_size)

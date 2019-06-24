@@ -1,0 +1,31 @@
+Network Configuration:
+batch_size: 32
+hidden_layer_structure: [200]
+learning_rate: 0.01
+keep_prob: 0.333
+rnn_cell: <class 'tensorflow.python.ops.rnn_cell_impl.LSTMCell'>
+lambda_o: 0.1
+lambda_w1: 0.003
+lambda_w2: 3.0
+Num of problems: 1377
+Num of run: 1
+Max num of run: 1
+Keep Prob: 0.333
+Epoch    1, Train AUC: 0.79631, Train Loss: 0.61071
+Epoch    1, Test AUC: 0.82573, Test AUC Curr: 0.86251, Test Loss: 0.56294*
+w_l1: 0.015732185496698223, w_l2: 0.03195129465780486
+m1: 0.1550995775497888, m2: 0.01036200414164661. Saving the model
+time used for this epoch: 98.34108710289001s
+***********
+The best testing result occured at: 0-th epoch, with testing AUC: 0.82573
+*********************************
+average AUC for 1 runs: 0.8257334161494887
+average AUC Current for 1 runs: 0.8625090331993649
+average waviness-l1 for 1 runs: 0.015732185496698223
+average waviness-l2 for 1 runs: 0.03195129465780486
+average consistency_m1 for 1 runs: 0.1550995775497888
+average consistency_m1 for 1 runs: 0.01036200414164661
+latex: 
+cell_type & num. layer & layer_structure & learning rate & keep prob. & $\lambda_o$ & $\lambda_{w_1}$ & $\lambda_{w_2}$ & Avg. AUC(N) & Avg. AUC(C) & Avg. $w_1$ & Avg. $w_2$ & Avg. $m_1$ & Avg. $m_2$\\ 
+LSTM & 1 & 200 & 0.0100 & 0.3330 & 0.1000 & 0.0030 & 3.0000 & 0.8257334161494887 $\pm$ 0.0 & 0.8625090331993649 $\pm$ 0.0 & 0.015732185496698223 $\pm$ 0.0 & 0.03195129465780486 $\pm$ 0.0 & 0.1550995775497888 $\pm$ 0.0 & 0.01036200414164661 $\pm$ 0.0\\ 
+

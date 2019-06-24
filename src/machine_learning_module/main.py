@@ -21,7 +21,6 @@ warnings.warn = warn
 # --------------------------------------------------------------------------
 
 
-
 train_log = "logs/dktmodel.train.log"  # File to save the training log.
 eval_log = "logs/dktmodel.eval.log"  # File to save the testing log.
 optimizer = "adagrad"  # Optimizer to use
@@ -32,27 +31,27 @@ dropout_rate = 0.6  # Dropout rate
 verbose = 2  # Verbose = {0,1,2}
 testing_rate = 0.2  # Portion of data to be used for testing
 validation_rate = 0.2  # Portion of training data to be used for validation
-dataset_name = 'cropped_hackerrank'
 DATASETS = {"hackerrank": '../machine_learning_module/data/submissions.csv',
             "benchmark": "../machine_learning_module/data/ASSISTments_skill_builder_data.csv",
-            "cropped_hackerrank": "../machine_learning_module/data/submissions_with_students_over_20.csv"}
+            "cropped_hackerrank": "../machine_learning_module/data/submissions_with_students_over_20.csv",
+            "difficulties": "../machine_learning_module/data/over_20_subs_difficulty_mod.csv"}
 # name_dataset = 'benchmark'
-
+dataset_name = 'difficulties'
 
 # Build and split datasets
 dataset = DATASETS[dataset_name]  # Dataset path
+challenges = "../machine_learning_module/data/challenges.csv"
 dataset, num_problems = read_file(dataset)
-X_train, X_val, X_test, y_train, y_val, y_test = split_dataset(dataset, validation_rate, testing_rate)
-
+X_train, X_val, X_test, y_train, y_val, y_test, diff_train, diff_val, diff_test = split_dataset(dataset, validation_rate, testing_rate)
 
 # Create generators for training/testing/validation
-train_gen = DataGenerator(X_train, y_train, num_problems, batch_size)
-val_gen = DataGenerator(X_val, y_val, num_problems, batch_size)
-test_gen = DataGenerator(X_test, y_test, num_problems, batch_size)
-
+train_gen = DataGenerator(X_train, diff_train, y_train, num_problems, batch_size)
+val_gen = DataGenerator(X_val, diff_val, y_val, num_problems, batch_size)
+test_gen = DataGenerator(X_test, diff_test, y_test, num_problems, batch_size)
 
 # Build the model
-ourModel = LSTMModel(hidden_units = 200, batch_size = batch_size, n_exercises = train_gen.num_skills)
+ourModel = LSTMModel(hidden_units=200, batch_size=batch_size, n_exercises=train_gen.num_skills,
+                     features_size=train_gen.feature_dim)
 # ourModel.fit(train_gen, val_gen, epochs = 100, verbose = 1)
 
 ourModel.load_model = 'logs/models/weights.model'
@@ -68,9 +67,6 @@ stu_n = np.random.randint(20)
 # check submissions and predictions for that student
 print(f"Student {stu_n} submissions: ", batch_features[stu_n])
 print(f"Student {stu_n} predictions: ", predictions[stu_n])
-
-
-
 
 # reuse the object and just load the best epoch's weights into it
 # ourModel.load_model = 'logs/models/weights.model'

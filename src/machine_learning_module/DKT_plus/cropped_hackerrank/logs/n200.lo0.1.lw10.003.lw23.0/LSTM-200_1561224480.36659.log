@@ -1,0 +1,14 @@
+Network Configuration:
+batch_size: 32
+hidden_layer_structure: [200]
+learning_rate: 0.01
+keep_prob: 0.333
+rnn_cell: <class 'tensorflow.python.ops.rnn_cell_impl.LSTMCell'>
+lambda_o: 0.1
+lambda_w1: 0.003
+lambda_w2: 3.0
+Num of problems: 1377
+Num of run: 1
+Max num of run: 1
+Keep Prob: 0.333
+Epoch    1, Train AUC: 0.7976, Train Loss: 0.61

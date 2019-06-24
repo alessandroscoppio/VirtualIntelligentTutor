@@ -1,0 +1,2 @@
+model_checkpoint_path: "LSTM-208-99"
+all_model_checkpoint_paths: "LSTM-208-99"

@@ -84,9 +84,12 @@ def model_evaluate(test_gen, model, metrics, verbose=0):
 
 
 class LSTMModel:
-    def __init__(self, hidden_units, n_exercises, batch_size):
+    def __init__(self, hidden_units, n_exercises, batch_size, features_size=None):
         self.n_exercises = n_exercises
         self.batch_size = batch_size
+        self.features_size = features_size
+        if self.features_size is None:
+            self.features_size = 2 * n_exercises
 
         # define custom crossentropy loss since keras add one value
         def loss_function(real_label, prediction):
@@ -100,7 +103,7 @@ class LSTMModel:
         self.model = Sequential()
 
         # ignore timesteps containing -1s dealing with padding
-        self.model.add(Masking(-1., batch_input_shape=(batch_size, None, 2 * n_exercises)))
+        self.model.add(Masking(-1., batch_input_shape=(batch_size, None, features_size)))
         self.model.add(LSTM(units=hidden_units, return_sequences=True, stateful=True))
         self.model.add(Dropout(0.5))
         self.model.add(TimeDistributed(Dense(n_exercises, activation='sigmoid')))

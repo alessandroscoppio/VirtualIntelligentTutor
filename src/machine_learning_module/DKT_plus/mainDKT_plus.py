@@ -57,7 +57,8 @@ parser.add_argument('--test_file', type = str, default = 'skill_id_test.csv',
                     help = "train data file, default as 'skill_id_test.csv'.")
 parser.add_argument("-csd", "--ckpt_save_dir", type = str, default = None,
                     help = "checkpoint save directory")
-parser.add_argument('--dataset', type = str, default = 'cropped_hackerrank')
+# parser.add_argument('--dataset', type = str, default = 'cropped_hackerrank')
+parser.add_argument('--dataset', type = str, default = 'difficulties')
 args = parser.parse_args()
 
 rnn_cells = {
@@ -100,22 +101,54 @@ elif dataset == 'cropped_hackerrank':
     train_path = '../data/submissions_with_students_over_20.csv'
     test_path = '../data/submissions_with_students_over_20.csv' # TODO split into test/train
     save_dir_prefix = './cropped_hackerrank'
+elif dataset == 'difficulties':
+    train_path = '../data/over_20_subs_difficulty_mod.csv'
+    test_path = '../data/over_20_subs_difficulty_mod.csv' # TODO split into test/train
+    save_dir_prefix = './difficulties'
 
+rnn_cells = {
+    "LSTM": tf.contrib.rnn.LSTMCell,
+    "GRU": tf.contrib.rnn.GRUCell,
+    "BasicRNN": tf.contrib.rnn.BasicRNNCell,
+    "LayerNormBasicLSTM": tf.contrib.rnn.LayerNormBasicLSTMCell,
+}
+
+# train_path = os.path.join('./data/', 'skill_id_train.csv')
+# test_path = os.path.join('./data/', 'skill_id_test.csv')
 
 network_config = {}
-network_config['batch_size'] = args.batch_size
-network_config['hidden_layer_structure'] = list(args.hidden_layer_structure)
-network_config['learning_rate'] = args.learning_rate
-network_config['keep_prob'] = args.keep_prob
-network_config['rnn_cell'] = rnn_cells[args.rnn_cell]
-network_config['lambda_w1'] = args.lambda_w1
-network_config['lambda_w2'] = args.lambda_w2
-network_config['lambda_o'] = args.lambda_o
+network_config['batch_size'] = 32
+network_config['hidden_layer_structure'] = [200]
+network_config['learning_rate'] = 0.01
+network_config['keep_prob'] = 0.333
+network_config['rnn_cell'] = rnn_cells["LSTM"]
+# network_config['rnn_cell'] = tf.contrib.cudnn_rnn.CudnnLSTM
 
-num_runs = args.num_runs
-num_epochs = args.num_epochs
-batch_size = args.batch_size
-keep_prob = args.keep_prob
+
+network_config['lambda_o'] = 0.1
+network_config['lambda_w1'] = 0.003
+network_config['lambda_w2'] = 3.0
+
+num_runs = 3
+num_epochs = 20
+batch_size = 32
+keep_prob = 0.333
+#
+# network_config = {}
+# network_config['batch_size'] = args.batch_size
+# network_config['hidden_layer_structure'] = list(args.hidden_layer_structure)
+# network_config['learning_rate'] = args.learning_rate
+# network_config['keep_prob'] = args.keep_prob
+# network_config['rnn_cell'] = rnn_cells[args.rnn_cell]
+# network_config['lambda_w1'] = args.lambda_w1
+# network_config['lambda_w2'] = args.lambda_w2
+# network_config['lambda_o'] = args.lambda_o
+#
+#
+# num_runs = args.num_runs
+# num_epochs = args.num_epochs
+# batch_size = args.batch_size
+# keep_prob = args.keep_prob
 
 ckpt_save_dir = args.ckpt_save_dir
 
@@ -145,5 +178,6 @@ def main():
 if __name__ == "__main__":
     start_time = time.time()
     main()
+
     end_time = time.time()
     print("program run for: {0}s".format(end_time - start_time))
