@@ -1,8 +1,8 @@
 import os, sys, time
 import tensorflow as tf
 from sklearn.metrics import roc_curve, auc
-from load_data import OriginalInputProcessor
-from model import Model
+from src.machine_learning_module.DKT_plus.load_data import OriginalInputProcessor
+from src.machine_learning_module.DKT_plus.model import Model
 import numpy as np
 import pandas as pd
 
@@ -22,8 +22,8 @@ def _seq_length(sequence):
 
 
 class DKT(object):
-    def __init__(self, sess, data_train, data_test, num_problems, network_config, save_dir_prefix='./',
-                 num_runs=5, num_epochs=500, keep_prob=0.5, logging=True, save=True):
+    def __init__(self, sess, data_train, data_test, num_problems, network_config, save_dir_prefix = './',
+                 num_runs = 5, num_epochs = 500, keep_prob = 0.5, logging = True, save = True):
         # the tensorflow session used
         self.sess = sess
 
@@ -35,7 +35,7 @@ class DKT(object):
         # network configuration and model initialization
         self.num_problems = num_problems
         self.network_config = network_config
-        self.model = Model(num_problems=num_problems, **network_config)
+        self.model = Model(num_problems = num_problems, **network_config)
 
         # training configuration
         self.keep_prob = keep_prob
@@ -49,9 +49,9 @@ class DKT(object):
         model_name = self.model_name = cell_type_str + '-' + layer_structure_str
 
         save_dir_name = 'n{}.lo{}.lw1{}.lw2{}/'.format(layer_structure_str,
-                                                    network_config['lambda_o'],
-                                                    network_config['lambda_w1'],
-                                                    network_config['lambda_w2'])
+                                                       network_config['lambda_o'],
+                                                       network_config['lambda_w1'],
+                                                       network_config['lambda_w2'])
         self.ckpt_save_dir = os.path.join(save_dir_prefix, 'checkpoints', save_dir_name)
         self.log_save_dir = os.path.join(save_dir_prefix, 'logs', save_dir_name)
         print('ckpt_save_dir: ', self.ckpt_save_dir)
@@ -93,14 +93,14 @@ class DKT(object):
             }
             _, _target_preds, _target_labels, _loss = sess.run(
                 [model.train_op, model.target_preds, model.target_labels, model.loss],
-                feed_dict=feed_dict
+                feed_dict = feed_dict
             )
             y_pred += [p for p in _target_preds]
             y_true += [t for t in _target_labels]
             loss = (iteration - 1) / iteration * loss + _loss / iteration
             iteration += 1
         try:
-            fpr, tpr, thres = roc_curve(y_true, y_pred, pos_label=1)
+            fpr, tpr, thres = roc_curve(y_true, y_pred, pos_label = 1)
             auc_score = auc(fpr, tpr)
         except ValueError:
             self._log("Value Error is encountered during finding the auc_score. Assign the AUC to 0 now.")
@@ -109,7 +109,7 @@ class DKT(object):
 
         return auc_score, loss
 
-    def evaluate(self, is_train=False):
+    def evaluate(self, is_train = False):
         if is_train:
             data = self.data_train
         else:
@@ -141,7 +141,7 @@ class DKT(object):
                  model.target_preds_current,
                  model.target_labels_current,
                  model.loss],
-                feed_dict=feed_dict
+                feed_dict = feed_dict
             )
             y_pred += [p for p in _target_preds]
             y_true += [t for t in _target_labels]
@@ -150,9 +150,9 @@ class DKT(object):
             loss = (iteration - 1) / iteration * loss + _loss / iteration
             iteration += 1
         try:
-            fpr, tpr, thres = roc_curve(y_true, y_pred, pos_label=1)
+            fpr, tpr, thres = roc_curve(y_true, y_pred, pos_label = 1)
             auc_score = auc(fpr, tpr)
-            fpr, tpr, thres = roc_curve(y_true_current, y_pred_current, pos_label=1)
+            fpr, tpr, thres = roc_curve(y_true_current, y_pred_current, pos_label = 1)
             auc_score_current = auc(fpr, tpr)
         except ValueError:
             self._log("Value Error is encountered during finding the auc_score. Assign the AUC to 0 now.")
@@ -174,11 +174,12 @@ class DKT(object):
         self.wavinesses_l2 = []
         self.consistency_m1 = []
         self.consistency_m2 = []
+
         for run_idx in range(num_runs):
             self.run_count = run_idx
             sess.run(tf.global_variables_initializer())
             best_test_auc = 0.0
-            best_test_auc_current = 0.0 # the auc_current when the test_auc is the best.
+            best_test_auc_current = 0.0  # the auc_current when the test_auc is the best.
             best_waviness_l1 = 0.0
             best_waviness_l2 = 0.0
             best_consistency_m1 = 0.0
@@ -207,10 +208,10 @@ class DKT(object):
                     best_epoch_idx = epoch_idx
                     best_test_auc = auc_test
                     best_test_auc_current = auc_current_test
-                    best_waviness_l1, best_waviness_l2 = self.waviness(is_train=False)
+                    best_waviness_l1, best_waviness_l2 = self.waviness(is_train = False)
 
                     # finding m1, m2
-                    m1, m2 = self.consistency(is_train=False)
+                    m1, m2 = self.consistency(is_train = False)
                     best_consistency_m1 = m1
                     best_consistency_m2 = m2
 
@@ -266,7 +267,7 @@ class DKT(object):
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
         save_path = os.path.join(save_dir, self.model_name)
-        saver.save(sess=sess, save_path=save_path)
+        saver.save(sess = sess, save_path = save_path)
 
     def load_model(self):
         save_dir = os.path.join(self.ckpt_save_dir, 'run_{}'.format(self.run_count), self.model_name)
@@ -274,9 +275,17 @@ class DKT(object):
         saver = tf.train.Saver()
         save_path = os.path.join(save_dir, self.model_name)
         if os.path.exists(save_path):
-            saver.restore(sess=sess, save_path=save_path)
+            saver.restore(sess = sess, save_path = save_path)
         else:
             self._log("No model found at {}".format(save_path))
+
+    def load_model_by_name(self, variables_file):
+
+        # create saver object
+        saver = tf.train.Saver()
+
+        # restore the saved vairable
+        saver.restore(self.sess, variables_file)
 
     def get_hidden_layer_output(self, problem_seqs, correct_seqs, layer):
         model = self.model
@@ -285,9 +294,9 @@ class DKT(object):
         assert layer < num_layer, "There are only {0} layers. indexed from 0.".format(num_layer)
 
         input_processor = OriginalInputProcessor()
-        X, y_seq, y_corr = input_processor.process_problems_and_corrects(problem_seqs=problem_seqs,
-                                                                         correct_seqs=correct_seqs,
-                                                                         num_problems=self.num_problems)
+        X, y_seq, y_corr = input_processor.process_problems_and_corrects(problem_seqs = problem_seqs,
+                                                                         correct_seqs = correct_seqs,
+                                                                         num_problems = self.num_problems)
 
         feed_dict = {
             model.X: X,
@@ -298,7 +307,7 @@ class DKT(object):
 
         hidden_layers_outputs = sess.run(
             model.hidden_layers_outputs,
-            feed_dict=feed_dict
+            feed_dict = feed_dict
         )
 
         result = hidden_layers_outputs[layer]
@@ -309,10 +318,10 @@ class DKT(object):
         sess = self.sess
 
         input_processor = OriginalInputProcessor()
-        X, y_seq, y_corr = input_processor.process_problems_and_corrects(problem_seqs=problem_seqs,
-                                                                         correct_seqs=correct_seqs,
-                                                                         num_problems=self.num_problems,
-                                                                         is_train=False)
+        X, y_seq, y_corr = input_processor.process_problems_and_corrects(problem_seqs = problem_seqs,
+                                                                         correct_seqs = correct_seqs,
+                                                                         num_problems = self.num_problems,
+                                                                         is_train = False)
 
         feed_dict = {
             model.X: X,
@@ -323,10 +332,13 @@ class DKT(object):
 
         pred_seqs = sess.run(
             model.preds,
-            feed_dict=feed_dict
+            feed_dict = feed_dict
         )
 
         return pred_seqs
+
+    def predict_one_student(self, problem_seqs, correct_seqs):
+        return self.get_output_layer(problem_seqs, correct_seqs)
 
     def _log(self, log_msg):
         print(log_msg)
@@ -411,7 +423,7 @@ class DKT(object):
         latex_str += "\\\\ \n"
         return latex_str
 
-    def plot_output_layer(self, problem_seq, correct_seq, target_problem_ids=None):
+    def plot_output_layer(self, problem_seq, correct_seq, target_problem_ids = None):
         import matplotlib.pyplot as plt
         import seaborn as sns
         problem_ids_answered = sorted(set(problem_seq))
@@ -419,7 +431,7 @@ class DKT(object):
             target_problem_ids = problem_ids_answered
 
         # get_output_layer return output in shape (1, 38, 124)
-        output = self.get_output_layer(problem_seqs=[problem_seq], correct_seqs=[correct_seq])[0]  # shape (38, 124)
+        output = self.get_output_layer(problem_seqs = [problem_seq], correct_seqs = [correct_seq])[0]  # shape (38, 124)
         output = output[:, target_problem_ids]  # shape (38, ?)
         output = np.transpose(output)  # shape (?, 38)
 
@@ -429,12 +441,12 @@ class DKT(object):
         df.columns = x_labels
         df.index = y_labels
 
-        return sns.heatmap(df, vmin=0, vmax=1, cmap=plt.cm.Blues)
+        return sns.heatmap(df, vmin = 0, vmax = 1, cmap = plt.cm.Blues)
 
     def plot_hidden_layer(self, problem_seq, correct_seq, layer):
         import matplotlib.pyplot as plt
         import seaborn as sns
-        output = self.get_hidden_layer_output(problem_seqs=[problem_seq], correct_seqs=[correct_seq], layer=layer)
+        output = self.get_hidden_layer_output(problem_seqs = [problem_seq], correct_seqs = [correct_seq], layer = layer)
         output = output[0]  # ignore the batch_idx
         output = np.transpose(output)
 
@@ -444,9 +456,9 @@ class DKT(object):
         df.columns = x_labels
         df.index = y_labels
 
-        return sns.heatmap(df, cmap='RdBu')
+        return sns.heatmap(df, cmap = 'RdBu')
 
-    def waviness(self, is_train=False):
+    def waviness(self, is_train = False):
         if is_train:
             data = self.data_train
         else:
@@ -471,7 +483,7 @@ class DKT(object):
                 [model.waviness_l1,
                  model.waviness_l2,
                  model.total_num_steps],
-                feed_dict=feed_dict
+                feed_dict = feed_dict
             )
             waviness_l1 += _waviness_l1 * _total_num_steps
             waviness_l2 += _waviness_l2 * _total_num_steps
@@ -482,8 +494,7 @@ class DKT(object):
 
         return waviness_l1, waviness_l2
 
-
-    def waviness_np(self, is_train=False):
+    def waviness_np(self, is_train = False):
         if is_train:
             data = self.data_train
         else:
@@ -506,7 +517,7 @@ class DKT(object):
             }
             pred_seqs = sess.run(
                 model.preds,
-                feed_dict=feed_dict
+                feed_dict = feed_dict
             )
 
             # finding w1, w2 for this batch
@@ -526,7 +537,7 @@ class DKT(object):
 
         return waviness_l1, waviness_l2
 
-    def _reconstruction_accurarcy(self, is_train=False):
+    def _reconstruction_accurarcy(self, is_train = False):
         if is_train:
             data = self.data_train
         else:
@@ -539,18 +550,18 @@ class DKT(object):
         sign_diff_score = 0
         diff_score = 0
         for i in range(len(problem_seqs)):
-            if i%20 == 0:
-                print(i, end='\r')
+            if i % 20 == 0:
+                print(i, end = '\r')
             problem_seq = problem_seqs[i]
             correct_seq = correct_seqs[i]
-            outputs = self.get_output_layer([problem_seq], [correct_seq]) # shape: (batch, time, num_problems)
+            outputs = self.get_output_layer([problem_seq], [correct_seq])  # shape: (batch, time, num_problems)
 
-            for j in range(1, len(problem_seq)): # exclude the prediction of the first output
+            for j in range(1, len(problem_seq)):  # exclude the prediction of the first output
                 target_id = problem_seq[j]
                 label = correct_seq[j]
-                score = 1.0 if label==1 else -1.0
+                score = 1.0 if label == 1 else -1.0
 
-                prev_pred = outputs[0][j-1][target_id]
+                prev_pred = outputs[0][j - 1][target_id]
                 curr_pred = outputs[0][j][target_id]
                 pred_diff = curr_pred - prev_pred
                 pred_sign_diff = np.sign(pred_diff)
@@ -560,7 +571,7 @@ class DKT(object):
                 num_interactions += 1
         return (sign_diff_score, diff_score, num_interactions)
 
-    def consistency(self, is_train=False):
+    def consistency(self, is_train = False):
         if is_train:
             data = self.data_train
         else:
@@ -587,24 +598,24 @@ class DKT(object):
             }
             pred_seqs = sess.run(
                 model.preds,
-                feed_dict=feed_dict
+                feed_dict = feed_dict
             )
 
             # finding m1, m2 for this batch
             base = y_seq_batch[:, 1:, :].copy()
             base[:] = -1.0
-            coefficient = np.sum( (np.power(base, 1 - y_corr_batch[:, 1:, :])) * y_seq_batch[:, 1:, :], axis=2)
+            coefficient = np.sum((np.power(base, 1 - y_corr_batch[:, 1:, :])) * y_seq_batch[:, 1:, :], axis = 2)
 
             m1 = np.sum(
                 coefficient * np.sign(np.sum(
-                    (pred_seqs[:, 1:, :] - pred_seqs[:, :-1, :]) * y_seq_batch[:, 1:, :], #y_t-y_{t-1} \dot
-                    axis=2
+                    (pred_seqs[:, 1:, :] - pred_seqs[:, :-1, :]) * y_seq_batch[:, 1:, :],  # y_t-y_{t-1} \dot
+                    axis = 2
                 ))
             )
             m2 = np.sum(
                 coefficient * np.sum(
                     (pred_seqs[:, 1:, :] - pred_seqs[:, :-1, :]) * y_seq_batch[:, 1:, :],
-                    axis=2
+                    axis = 2
                 )
             )
 

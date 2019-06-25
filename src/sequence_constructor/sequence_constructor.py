@@ -3,9 +3,10 @@ import numpy as np
 
 
 class SequenceConstructor:
-    def __init__(self, model, history, exercises):
+    def __init__(self, model, exercise_ids, answers, exercises):
         self.model = model
-        self.history = history
+        self.exercise_ids = exercise_ids
+        self.answers = answers
         self.exercises_solved = []
         self.exercises = exercises
         self.probability_of_solving = 0.8
@@ -15,66 +16,13 @@ class SequenceConstructor:
         self.evaluating_methods = {"sum_of_distances": self.sum_of_distances,
                                    "sum_of_probabilities": self.sum_of_probabilities}
 
-    def get_exercises_solved(self):
-        """
-        Decodes the IDs of the exercises from hot encoded vector
-        """
-        columns, rows = np.nonzero(self.history)
-        self.exercises_solved = list(rows)
-        print(self.exercises_solved)
-
     def get_initial_skill_vector(self):
-        self.initial_skill_vector = self.model.predict(self.history)
+        self.initial_skill_vector = self.model.predict_one_student(self.exercise_ids, self.answers)[0, -1, :]
         return self.initial_skill_vector
 
-    def greedy_search(self):
-        self.get_initial_skill_vector()
-        self.get_exercises_solved()
-        total_score = -float('inf')
-        best_exercise = None
-        # Loop through all exercises
-        for exercise_id in range(len(self.exercises)):
-            # If the exercise is not already solved
-            if exercise_id not in self.exercises_solved:
-
-                # Simulate that the user solves the exercise
-                self.history.append(self.solve_exercise(exercise_id))
-
-                # Take prediction of probabilities after user solving this exercise.
-                successful_skill_vector = self.model.predict(self.history)
-
-                # Evaluate action
-                succesful_score = self.evaluate(successful_skill_vector, self.initial_skill_vector,
-                                                metric = 'sum_of_distances')
-
-                # Simulate that the user does NOT solve the exercise
-                self.history[-1] = self.fail_exercise(exercise_id)
-
-                # Take prediction of probabilities after user failed this exercise.
-                unsuccessful_skill_vector = self.model.predict(self.history)
-
-                # Evaluate action
-                unsuccesful_score = self.evaluate(unsuccessful_skill_vector, self.initial_skill_vector,
-                                                  metric = 'sum_of_distances')
-
-                # Total score
-                total_score = self.initial_skill_vector[exercise_id] * succesful_score + (
-                        1 - self.initial_skill_vector[exercise_id]) * unsuccesful_score
-
-                # Decrease the history array
-                del self.history[-1]
-                print("And the total_score is:" + "{:1.2f}".format(total_score) + " for exercise " + str(exercise_id))
-                print("---")
-            if total_score > self.max_score:
-                # If this score is bigger than the max save it
-                self.max_score = total_score
-                best_exercise = exercise_id
-
-        return best_exercise
 
     def get_expectimax_exercise(self, depth):
         self.get_initial_skill_vector()
-        self.get_exercises_solved()
         score, best_exercise = self.tree_search(self.initial_skill_vector, 0, depth)
         return best_exercise
 
@@ -88,7 +36,7 @@ class SequenceConstructor:
         """
         if depth == 0:
             # Take prediction of probabilities after user attempting to solve this exercise.
-            new_skill_vector = self.model.predict(self.history)
+            new_skill_vector = self.model.predict_one_student(self.exercise_ids, self.answers)[0, -1, :]
             # Evaluate action
             score = self.evaluate(new_skill_vector, skill_vector, metric = 'sum_of_probabilities')
             return score, exercise_id
@@ -105,32 +53,39 @@ class SequenceConstructor:
                     if score > max_score:
                         max_score = score
                         best_exercise = new_exercise_id
-                        print("Max score: "+"{:1.2f}".format(score)+" for exercise " + str(best_exercise) + ". Depth is "+ str(depth))
+
+                        print("Max score: " + "{:1.2f}".format(score) + " for exercise " + str(
+                            best_exercise) + ". Depth is " + str(
+                            depth) + ". Probability of solving: " + "{:1.2f}".format(skill_vector[best_exercise]))
 
             return max_score, best_exercise
 
         else:
             # Simulate that the user solves the exercise
-            self.history.append(self.solve_exercise(exercise_id))
+            self.exercise_ids.append(exercise_id)
             self.exercises_solved.append(exercise_id)
+            self.answers.append(1)
 
             # Get values for succesful sscore
             succesful_score, _ = self.tree_search(skill_vector, exercise_id, depth - 1)
 
             # Remove exercises from history
-            del self.history[-1]
+            del self.exercise_ids[-1]
             del self.exercises_solved[-1]
+            del self.answers[-1]
 
             # Simulate that the user does NOT solve the exercise
-            self.history.append(self.fail_exercise(exercise_id))
+            self.exercise_ids.append(exercise_id)
             self.exercises_solved.append(exercise_id)
+            self.answers.append(0)
 
             # Get values for unseccesful score
             unsuccesful_score, _ = self.tree_search(skill_vector, exercise_id, depth - 1)
 
             # Remove exercises from history
-            del self.history[-1]
+            del self.exercise_ids[-1]
             del self.exercises_solved[-1]
+            del self.answers[-1]
 
             # Calculate the expected score
             expected_score = skill_vector[exercise_id] * succesful_score + (
@@ -147,17 +102,6 @@ class SequenceConstructor:
         :param exercise:
         :return:
         """
-        hot_encoded_vector = np.zeros(2 * len(self.exercises))
-        hot_encoded_vector[exercise] = 1
-        return hot_encoded_vector
-
-    def solve_exercise(self, exercise):
-        hot_encoded_vector = np.zeros(2 * len(self.exercises))
-        hot_encoded_vector[exercise] = 1
-        hot_encoded_vector[exercise + len(self.exercises)] = 1
-        return hot_encoded_vector
-
-    def fail_exercise(self, exercise):
         hot_encoded_vector = np.zeros(2 * len(self.exercises))
         hot_encoded_vector[exercise] = 1
         return hot_encoded_vector

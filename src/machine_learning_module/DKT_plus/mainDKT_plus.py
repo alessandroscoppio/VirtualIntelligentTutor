@@ -3,8 +3,8 @@ import tensorflow as tf
 import time
 import numpy as np
 
-from utils import DKT
-from load_data import DKTData
+from src.machine_learning_module.DKT_plus.utils import DKT
+from src.machine_learning_module.DKT_plus.load_data import DKTData
 
 """
 Assignable variables:
@@ -137,9 +137,34 @@ def main():
 
     # run optimization of the created model
     dkt.model.build_graph()
-    dkt.run_optimization()
+    # dkt.run_optimization()
+    dkt.load_model_by_name('cropped_hackerrank/checkpoints/n200.lo0.0.lw10.0.lw20.0/run_2/LSTM-200/LSTM-200')
+    test = dkt.data_test.problem_seqs[0:1]
+    pred_seq = dkt.get_output_layer(dkt.data_test.problem_seqs[0:1], dkt.data_test.correct_seqs[0:1])
     # close the session
     sess.close()
+
+def build_model(path_to_model ,num_problems):
+    """
+    Method to build and extract a model
+    :param num_problems:
+    :return:
+    """
+    config = tf.ConfigProto()
+    config.gpu_options.allow_growth = True
+    sess = tf.Session(config = config)
+
+
+    dkt = DKT(sess, None, None, num_problems, network_config,
+              save_dir_prefix = save_dir_prefix,
+              num_runs = num_runs, num_epochs = num_epochs,
+              keep_prob = keep_prob, logging = True, save = True)
+
+    # run optimization of the created model
+    dkt.model.build_graph()
+    # dkt.run_optimization()
+    dkt.load_model_by_name(path_to_model)
+    return dkt, sess
 
 
 if __name__ == "__main__":
