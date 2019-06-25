@@ -1,0 +1,65 @@
+Network Configuration:
+batch_size: 32
+hidden_layer_structure: [200]
+learning_rate: 0.01
+keep_prob: 0.333
+rnn_cell: <class 'tensorflow.python.ops.rnn_cell_impl.LSTMCell'>
+lambda_o: 0.1
+lambda_w1: 0.003
+lambda_w2: 3.0
+Num of problems: 1377
+Num of run: 3
+Max num of run: 20
+Keep Prob: 0.333
+Epoch    1, Train AUC: 0.57758, Train Loss: 0.75135
+Epoch    1, Test AUC: 0.6169, Test AUC Curr: 0.67961, Test Loss: 0.73096*
+w_l1: 0.002188343790996388, w_l2: 0.003763551582539894
+m1: 0.5215292744252874, m2: 0.012441701220278895. Saving the model
+time used for this epoch: 541.6477613449097s
+***********
+Epoch    2, Train AUC: 0.67715, Train Loss: 0.71216
+Epoch    2, Test AUC: 0.66921, Test AUC Curr: 0.79151, Test Loss: 0.70034*
+w_l1: 0.0032948510368579916, w_l2: 0.006763871404589738
+m1: 0.5504445043103449, m2: 0.03129254096928963. Saving the model
+time used for this epoch: 462.19668769836426s
+***********
+Epoch    3, Train AUC: 0.73037, Train Loss: 0.67019
+Epoch    3, Test AUC: 0.68796, Test AUC Curr: 0.84918, Test Loss: 0.69295*
+w_l1: 0.004968503104592073, w_l2: 0.010327541453753796
+m1: 0.5202496408045977, m2: 0.04992540830467967. Saving the model
+time used for this epoch: 3336.6677894592285s
+***********
+Epoch    4, Train AUC: 0.7493, Train Loss: 0.6494
+Epoch    4, Test AUC: 0.70695, Test AUC Curr: 0.89472, Test Loss: 0.68076*
+w_l1: 0.005909887517053413, w_l2: 0.0125549633063837
+m1: 0.5398931393678161, m2: 0.062276563724240654. Saving the model
+time used for this epoch: 307.37856674194336s
+***********
+Epoch    5, Train AUC: 0.75876, Train Loss: 0.63749
+Epoch    5, Test AUC: 0.71342, Test AUC Curr: 0.90961, Test Loss: 0.67567*
+w_l1: 0.0069108976621867334, w_l2: 0.014707243575503874
+m1: 0.5153331537356322, m2: 0.07217007040731266. Saving the model
+time used for this epoch: 302.0900113582611s
+***********
+Epoch    6, Train AUC: 0.76331, Train Loss: 0.632
+Epoch    6, Test AUC: 0.71418, Test AUC Curr: 0.91542, Test Loss: 0.67369*
+w_l1: 0.007073436427715219, w_l2: 0.015246393328608259
+m1: 0.5229211566091954, m2: 0.0741561475188482. Saving the model
+time used for this epoch: 310.6618900299072s
+***********
+Epoch    7, Train AUC: 0.7679, Train Loss: 0.62495
+Epoch    7, Test AUC: 0.71671, Test AUC Curr: 0.92155, Test Loss: 0.67227*
+w_l1: 0.0075232934445124975, w_l2: 0.016627352912724578
+m1: 0.5362113864942529, m2: 0.0778833682790677. Saving the model
+time used for this epoch: 307.9398579597473s
+***********
+Epoch    8, Train AUC: 0.77123, Train Loss: 0.62062
+Epoch    8, Test AUC: 0.72024, Test AUC Curr: 0.93092, Test Loss: 0.67123*
+w_l1: 0.008457276721543037, w_l2: 0.018571071200434556
+m1: 0.5429911997126436, m2: 0.08319995050778849. Saving the model
+time used for this epoch: 311.0658133029938s
+***********
+Epoch    9, Train AUC: 0.77422, Train Loss: 0.61737
+Epoch    9, Test AUC: 0.72003, Test AUC Curr: 0.92836, Test Loss: 0.67273
+time used for this epoch: 272.8193371295929s
+***********

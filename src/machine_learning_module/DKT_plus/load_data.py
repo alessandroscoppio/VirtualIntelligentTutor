@@ -10,9 +10,24 @@ def pad(data, target_length, target_value=0):
     return np.pad(data, (0, target_length - len(data)), 'constant', constant_values=target_value)
 
 
+def check_tuples(to_check):
+    for row in to_check:
+        if len(row[1]) != len(row[2]):
+            print("Problem: size mismatch")
+        else:
+            if len(row[1]) == row[0]:
+                print('OK!')
+
+
 def one_hot(indices, depth):
     encoding = np.concatenate((np.eye(depth), [np.zeros(depth)]))
     return encoding[indices]
+
+
+def one_hot_diff(difficu_seqs_pad, depth):
+    binned = np.digitize(difficu_seqs_pad, [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9])
+    binned_oh = one_hot(binned, 10)
+    return binned_oh
 
 
 class OriginalInputProcessor(object):
@@ -21,13 +36,22 @@ class OriginalInputProcessor(object):
         This function aims to process the problem sequence and the correct sequence into a DKT feedable X and y.
         :param problem_seqs: it is in shape [batch_size, None]
         :param correct_seqs: it is the same shape as problem_seqs
+        :param difficu_seqs: it is the same shape as problem_seqs
         :return:
         """
         # pad the sequence with the maximum sequence length
         max_seq_length = max([len(problem) for problem in problem_seqs])
         problem_seqs_pad = np.array([pad(problem, max_seq_length, target_value=-1) for problem in problem_seqs])
         correct_seqs_pad = np.array([pad(correct, max_seq_length, target_value=-1) for correct in correct_seqs])
-        difficu_seqs_pad = np.array([pad(difficu, max_seq_length, target_value=0) for difficu in difficu_seqs])
+        try:
+            difficu_seqs_pad = np.array([pad(difficu, max_seq_length, target_value=0) for difficu in difficu_seqs])
+        except ValueError:
+            print("sth went wrong with difficulties, clipping size")
+            for idx, seq in enumerate(difficu_seqs):
+                problem_seq_len = len(problem_seqs[idx])
+                if len(seq) > problem_seq_len:
+                    difficu_seqs[idx] = seq[0:problem_seq_len]
+            difficu_seqs_pad = np.array([pad(difficu, max_seq_length, target_value=0) for difficu in difficu_seqs])
 
         # find the correct seqs matrix as the following way:
         # Let problem_seq = [1,3,2,-1,-1] as a and correct_seq = [1,0,1,-1,-1] as b, which are padded already
@@ -41,25 +65,25 @@ class OriginalInputProcessor(object):
         # one hot encode the information
         problem_seqs_oh = one_hot(problem_seqs_pad, depth=num_problems)
         correct_seqs_oh = one_hot(correct_seqs_pad, depth=num_problems)
-        # difficu_seqs_oh = one_hot(difficu_seqs_pad, depth=num_problems)
+        difficu_seqs_oh = one_hot_diff(difficu_seqs_pad, depth=10)
 
         # slice out the x and y
         if is_train:
             x_problem_seqs = problem_seqs_oh[:, :-1]
             x_correct_seqs = correct_seqs_oh[:, :-1]
-            x_difficu_seqs = difficu_seqs_pad[:, :-1]
+            x_difficu_seqs = difficu_seqs_oh[:, :-1]
             y_problem_seqs = problem_seqs_oh[:, 1:]
             y_correct_seqs = correct_seqs_oh[:, 1:]
         else:
             x_problem_seqs = problem_seqs_oh[:, :]
             x_correct_seqs = correct_seqs_oh[:, :]
-            x_difficu_seqs = difficu_seqs_pad[:, :]
+            x_difficu_seqs = difficu_seqs_oh[:, :]
             y_problem_seqs = problem_seqs_oh[:, :]
             y_correct_seqs = correct_seqs_oh[:, :]
 
         X = np.concatenate((x_problem_seqs, x_correct_seqs), axis=2)
         X = np.dstack((X, x_difficu_seqs))
-         # = np.dstack((X, x_difficu_seqs))
+        # = np.dstack((X, x_difficu_seqs))
 
         result = (X, y_problem_seqs, y_correct_seqs)
         return result
@@ -129,6 +153,9 @@ def read_old_format_data(filename):
         seq_length = len(X[i])
         if seq_length < 3:
             skipped_students += 1
+            continue
+
+        if len(diff[i]) != seq_length:
             continue
 
         new_student = (seq_length, X[i], y[i], diff[i])
@@ -239,12 +266,19 @@ def test_train_split(tuples, testing_rate, shuffle=True):
 
             if len(value[1]) > max_seq_length_test:
                 max_seq_length_test = len(value[1])
+            # Check if difficulties size gets messed up
+            if len(value[1]) != len(value[2]):
+                print("Something went wrong, submission features mismatch!")
 
         else:
             students_train.append(value)
 
             if len(value[1]) > max_seq_length_train:
                 max_seq_length_train = len(value[1])
+
+            # Check if difficulties size gets messed up
+            if len(value[1]) != len(value[2]):
+                print("Something went wrong, submission features mismatch!")
 
     return students_test, students_train, max_seq_length_test, max_seq_length_train
 
@@ -266,7 +300,6 @@ class DKTData:
         problem_seqs = [student[1] for student in self.students_train]
         correct_seqs = [student[2] for student in self.students_train]
         difficu_seqs = [student[3] for student in self.students_train]
-
 
         self.train = BatchGenerator(problem_seqs, correct_seqs, difficu_seqs, self.num_problems, batch_size)
 

@@ -1,0 +1,19 @@
+Network Configuration:
+batch_size: 32
+hidden_layer_structure: [200]
+learning_rate: 0.01
+keep_prob: 0.333
+rnn_cell: <class 'tensorflow.python.ops.rnn_cell_impl.LSTMCell'>
+lambda_o: 0.1
+lambda_w1: 0.003
+lambda_w2: 3.0
+Num of problems: 1377
+Num of run: 3
+Max num of run: 20
+Keep Prob: 0.333
+Epoch    1, Train AUC: 0.56424, Train Loss: 0.75984
+Epoch    1, Test AUC: 0.57953, Test AUC Curr: 0.61157, Test Loss: 0.74697*
+w_l1: 0.001403178098822142, w_l2: 0.003676416654718973
+m1: 0.5061139344444198, m2: 0.005590620714916386. Saving the model
+time used for this epoch: 1039.9983158111572s
+***********

@@ -44,7 +44,7 @@ class Model(object):
         num_problems = self.num_problems
 
         # placeholder
-        self.X = tf.placeholder(tf.float32, [None, None, 2 * num_problems + 1], name='X')
+        self.X = tf.placeholder(tf.float32, [None, None, 2 * num_problems + 10], name='X')
         self.y_seq = tf.placeholder(tf.float32, [None, None, num_problems], name='y_seq')
         self.y_corr = tf.placeholder(tf.float32, [None, None, num_problems], name='y_corr')
         self.keep_prob = tf.placeholder(tf.float32)
@@ -81,16 +81,16 @@ class Model(object):
 
         # Output Layer Construction
         with tf.variable_scope("output_layer", reuse=tf.get_variable_scope().reuse):
-            W_yh = tf.get_variable("weights", shape=[last_layer_size, self.num_problems+1],
+            W_yh = tf.get_variable("weights", shape=[last_layer_size, self.num_problems],
                                    initializer=tf.random_normal_initializer(stddev=1.0 / np.sqrt(self.num_problems)))
-            b_yh = tf.get_variable("biases", shape=[self.num_problems+1, ],
+            b_yh = tf.get_variable("biases", shape=[self.num_problems],
                                    initializer=tf.random_normal_initializer(stddev=1.0 / np.sqrt(self.num_problems)))
 
             # Flatten the last layer output
             num_steps = tf.shape(last_layer_outputs)[1]
             self.outputs_flat = tf.reshape(last_layer_outputs, shape=[-1, last_layer_size])
             self.logits_flat = tf.matmul(self.outputs_flat, W_yh) + b_yh
-            self.logits = tf.reshape(self.logits_flat, shape=[-1, num_steps, self.num_problems+1]) # add 1?
+            self.logits = tf.reshape(self.logits_flat, shape=[-1, num_steps, self.num_problems]) # add 1?
             self.preds = tf.sigmoid(self.logits)
 
             # self.preds_flat = tf.sigmoid(self.logits_flat)

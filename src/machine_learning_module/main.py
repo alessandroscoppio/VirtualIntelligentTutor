@@ -34,7 +34,7 @@ validation_rate = 0.2  # Portion of training data to be used for validation
 DATASETS = {"hackerrank": '../machine_learning_module/data/submissions.csv',
             "benchmark": "../machine_learning_module/data/ASSISTments_skill_builder_data.csv",
             "cropped_hackerrank": "../machine_learning_module/data/submissions_with_students_over_20.csv",
-            "difficulties": "../machine_learning_module/data/over_20_subs_difficulty_mod.csv"}
+            "difficulties": "../machine_learning_module/data/over_20_subs_difficulty.csv"}
 # name_dataset = 'benchmark'
 dataset_name = 'difficulties'
 
