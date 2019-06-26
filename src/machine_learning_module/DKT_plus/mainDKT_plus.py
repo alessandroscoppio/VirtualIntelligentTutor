@@ -144,7 +144,7 @@ def main():
     # close the session
     sess.close()
 
-def build_model(path_to_model ,num_problems):
+def build_model(path_to_model, num_problems):
     """
     Method to build and extract a model
     :param num_problems:

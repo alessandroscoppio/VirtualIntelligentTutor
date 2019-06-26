@@ -193,3 +193,42 @@ class DataGenerator(object):
                 yield batch_features, batch_labels
 
 
+def extend_sequence_to_batch(seq_list, correct_list, batch_size, num_of_exercises):
+    """
+    Extend a sequence for 1 student to a batch of random sequences for a testing purposes
+    :param seq_list: sequence of exercises
+    :param batch_size: desired batch sice
+    :param num_of_exercises: total num of exercises in dataset
+    :return: batch with random history of students
+    """
+
+    max_length = len(seq_list)
+    final_batch = []
+    answers_batch = []
+
+    for i in range(batch_size - 1):
+
+        sum = 0
+        exercies_sequence = []
+        answers_sequence = []
+        sequence_len = max_length
+
+        while sum < sequence_len - 1:
+
+            num_of_attempts = np.random.randint(1, sequence_len - sum)
+            exercise = np.random.randint(0, num_of_exercises)
+            attempts = [exercise] * num_of_attempts
+            answers = [0] * num_of_attempts
+
+            answers[-1] = np.random.choice([0, 1])
+            answers_sequence.extend(answers)
+            exercies_sequence.extend(attempts)
+            sum += num_of_attempts
+
+        final_batch.append(exercies_sequence)
+        answers_batch.append(answers_sequence)
+
+    final_batch.append(seq_list)
+    answers_batch.append(correct_list)
+
+    return final_batch, answers_batch

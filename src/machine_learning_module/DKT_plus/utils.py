@@ -338,7 +338,7 @@ class DKT(object):
         return pred_seqs
 
     def predict_one_student(self, problem_seqs, correct_seqs):
-        return self.get_output_layer(problem_seqs, correct_seqs)
+        return self.get_output_layer([problem_seqs], [correct_seqs])
 
     def _log(self, log_msg):
         print(log_msg)
