@@ -6,8 +6,8 @@ from utils import DKT
 from load_data import DKTData
 from math import log
 
-
 import argparse
+
 parser = argparse.ArgumentParser()
 # training configuration
 parser.add_argument("--num_runs", type=int, default=5,
@@ -23,6 +23,10 @@ parser.add_argument('--train_file', type=str, default='skill_id_train.csv',
                     help="train data file, default as 'skill_id_train.csv'.")
 parser.add_argument('--test_file', type=str, default='skill_id_test.csv',
                     help="train data file, default as 'skill_id_test.csv'.")
+parser.add_argument("-csd", "--ckpt_save_dir", type=str, default=None,
+                    help="checkpoint save directory")
+parser.add_argument('--dataset', type=str, default='cropped_hackerrank')
+
 # random search hyperparameter
 parser.add_argument("-hsz_mean", "--hyper_state_size_mean", type=float, default=200.0,
                     help="The target state size of mean of lognormal of generating hidden layer state size.")
@@ -31,21 +35,55 @@ parser.add_argument("-hsz_std", "--hyper_state_size_std", type=float, default=0.
                          "generating hidden layer state size.")
 
 # hyper-parameter
-parser.add_argument("-lw1", "--lambda_w1_values", type=float, default=[0.00,], nargs='*',
+parser.add_argument("-lw1", "--lambda_w1_values", type=float, default=[0.00, ], nargs='*',
                     help="The lambda coefficient for the regularization waviness with l1-norm.")
-parser.add_argument("-lw2", "--lambda_w2_values", type=float, default=[0.00,], nargs='*',
+parser.add_argument("-lw2", "--lambda_w2_values", type=float, default=[0.00, ], nargs='*',
                     help="The lambda coefficient for the regularization waviness with l2-norm.")
-parser.add_argument("-lo", "--lambda_o_values", type=float, default=[0.00,], nargs='*',
+parser.add_argument("-lo", "--lambda_o_values", type=float, default=[0.00, ], nargs='*',
                     help="The lambda coefficient for the regularization objective.")
 
 args = parser.parse_args()
+dataset = args.dataset
+if dataset == 'a2009u':
+    train_path = './data/assist2009_updated/assist2009_updated_train.csv'
+    test_path = './data/assist2009_updated/assist2009_updated_test.csv'
+    save_dir_prefix = './a2009u/'
+elif dataset == 'a2015':
+    train_path = './data/assist2015/assist2015_train.csv'
+    test_path = './data/assist2015/assist2015_test.csv'
+    save_dir_prefix = './a2015/'
+elif dataset == 'synthetic':
+    train_path = './data/synthetic/naive_c5_q50_s4000_v1_train.csv'
+    test_path = './data/synthetic/naive_c5_q50_s4000_v1_test.csv'
+    save_dir_prefix = './synthetic/'
+elif dataset == 'statics':
+    train_path = './data/STATICS/STATICS_train.csv'
+    test_path = './data/STATICS/STATICS_test.csv'
+    save_dir_prefix = './STATICS/'
+elif dataset == 'assistment_challenge':
+    train_path = './data/assistment_challenge/assistment_challenge_train.csv'
+    test_path = './data/assistment_challenge/assistment_challenge_test.csv'
+    save_dir_prefix = './assistment_challenge/'
+elif dataset == 'toy':
+    train_path = './data/toy_data_train.csv'
+    test_path = './data/toy_data_test.csv'
+    save_dir_prefix = './toy/'
+elif dataset == 'a2009':
+    train_path = './data/skill_id_train.csv'
+    test_path = './data/skill_id_test.csv'
+    save_dir_prefix = './a2009/'
+elif dataset == 'cropped_hackerrank':
+    train_path = '../data/submissions_with_students_over_20.csv'
+    test_path = '../data/submissions_with_students_over_20.csv'  # TODO split into test/train
+    save_dir_prefix = './cropped_hackerrank'
 
-
-train_path = os.path.join(args.data_dir, args.train_file)
-test_path = os.path.join(args.data_dir, args.test_file)
+# train_path = os.path.join(args.data_dir, args.train_file)
+# test_path = os.path.join(args.data_dir, args.test_file)
 num_runs = args.num_runs
 num_epochs = args.num_epochs
 batch_size = args.batch_size
+# ckpt_save_dir = args.ckpt_save_dir
+
 
 rnn_cells = {
     "LSTM": tf.contrib.rnn.LSTMCell,
@@ -54,26 +92,29 @@ rnn_cells = {
     "LayerNormBasicLSTM": tf.contrib.rnn.LayerNormBasicLSTMCell,
 }
 
+
 def loguniform(low=0.0, high=1.0, size=None):
     return np.exp(np.random.uniform(np.log(low), np.log(high), size))
 
+
 def generate_hyperparameter():
     rnn_cell = 'LSTM'
-    # num_layers = np.random.choice([1,2,3], p=[0.5, 0.4, 0.1])
-    # hidden_layer_structure = []
-    # for i in range(1, num_layers+1):
-    #     state_size = np.random.lognormal(mean=log(args.hyper_state_size_mean),
-    #                                          sigma=args.hyper_state_size_std)
-    #     state_size = int(state_size // i) # int operation is required.
-    #     hidden_layer_structure.append(state_size)
-    hidden_layer_structure = [200,]
-    # learning_rate = loguniform(low=0.001, high=0.01)
-    learning_rate = 0.01
-    # keep_prob = np.random.uniform(low=0.3, high=0.5)
-    keep_prob = 0.5
+    num_layers = np.random.choice([1,2,3], p=[0.5, 0.4, 0.1])
+    hidden_layer_structure = []
+    for i in range(1, num_layers+1):
+        state_size = np.random.lognormal(mean=log(args.hyper_state_size_mean),
+                                             sigma=args.hyper_state_size_std)
+        state_size = int(state_size // i) # int operation is required.
+        hidden_layer_structure.append(state_size)
+    # hidden_layer_structure = [200, ]
+    learning_rate = loguniform(low=0.001, high=0.01)
+    # learning_rate = 0.01
+    keep_prob = np.random.uniform(low=0.3, high=0.5)
+    # keep_prob = 0.5
     embedding_size = int(np.random.uniform(low=20, high=400))
     lambda_o = np.random.choice([0.05, 0.10, 0.15, 0.20, 0.25], p=[.2, .2, .2, .2, .2])
     lambda_w = np.random.choice([0.001, 0.003, 0.01, 0.03, 0.1], p=[.2, .2, .2, .2, .2])
+    batch_size = np.random.choice([1, 32, 50], p=[.4, .4, .2])
 
     network_config = {}
     network_config['batch_size'] = 32
@@ -111,7 +152,7 @@ def main(num_search=5):
                 num_problems = data.num_problems
 
                 dkt = DKT(sess, data_train, data_test, num_problems, network_config,
-                          ckpt_save_dir=None,
+                          save_dir_prefix=save_dir_prefix,
                           num_runs=num_runs, num_epochs=num_epochs,
                           keep_prob=keep_prob, logging=True, save=True)
 
@@ -126,10 +167,11 @@ def main(num_search=5):
                 # close the session
                 sess.close()
                 tf.reset_default_graph()
-        
+
     print("Best avg. auc:", best_avg_auc)
     print("Best network config:", best_network_config)
     print("Best dkt log path:", best_dkt.log_file_path)
+
 
 if __name__ == "__main__":
     start_time = time.time()

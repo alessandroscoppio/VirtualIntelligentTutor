@@ -117,6 +117,14 @@ num_epochs = args.num_epochs
 batch_size = args.batch_size
 keep_prob = args.keep_prob
 
+network_config['lambda_o'] = 0.1
+network_config['lambda_w1'] = 0.003
+network_config['lambda_w2'] = 3.0
+
+num_runs = 3
+num_epochs = 20
+batch_size = 32
+keep_prob = 0.333
 ckpt_save_dir = args.ckpt_save_dir
 
 
