@@ -191,7 +191,7 @@ def read_data_from_csv(filename):
     return tuples, num_problems, max_seq_length
 
 
-def split_dataset(data, validation_rate, testing_rate, shuffle = True):
+def split_dataset(data, validation_rate, testing_rate, shuffle = False):
     seqs = data
     if shuffle:
         random.shuffle(seqs)
@@ -211,12 +211,14 @@ def split_dataset(data, validation_rate, testing_rate, shuffle = True):
     return X_train, X_val, X_test, y_train, y_val, y_test
 
 
-def test_train_split(tuples, testing_rate, shuffle = True):
+def test_train_split(tuples, testing_rate, shuffle = False):
     seqs = tuples
     if shuffle:
         random.shuffle(seqs)
 
-    test_idx = random.sample(range(0, len(seqs) - 1), int(len(seqs) * testing_rate))
+    # test_idx = random.sample(range(0, len(seqs) - 1), int(len(seqs) * testing_rate))
+    indices = range(0, len(seqs)-1)
+    test_idx = indices[-int(len(seqs) * testing_rate):]
     students_test, students_train = [], []
     max_seq_length_train = 0
     max_seq_length_test = 0

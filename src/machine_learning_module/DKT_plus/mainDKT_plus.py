@@ -101,22 +101,40 @@ elif dataset == 'cropped_hackerrank':
     test_path = '../data/submissions_with_students_over_20.csv' # TODO split into test/train
     save_dir_prefix = './cropped_hackerrank'
 
+#
+# network_config = {}
+# network_config['batch_size'] = args.batch_size
+# network_config['hidden_layer_structure'] = list(args.hidden_layer_structure)
+# network_config['learning_rate'] = args.learning_rate
+# network_config['keep_prob'] = args.keep_prob
+# network_config['rnn_cell'] = rnn_cells[args.rnn_cell]
+# network_config['lambda_w1'] = args.lambda_w1
+# network_config['lambda_w2'] = args.lambda_w2
+# network_config['lambda_o'] = args.lambda_o
+#
+# num_runs = args.num_runs
+# num_epochs = args.num_epochs
+# batch_size = args.batch_size
+# keep_prob = args.keep_prob
+
 
 network_config = {}
-network_config['batch_size'] = args.batch_size
-network_config['hidden_layer_structure'] = list(args.hidden_layer_structure)
-network_config['learning_rate'] = args.learning_rate
-network_config['keep_prob'] = args.keep_prob
-network_config['rnn_cell'] = rnn_cells[args.rnn_cell]
-network_config['lambda_w1'] = args.lambda_w1
-network_config['lambda_w2'] = args.lambda_w2
-network_config['lambda_o'] = args.lambda_o
+network_config['batch_size'] = 32
+network_config['hidden_layer_structure'] = [200]
+network_config['learning_rate'] = 0.01
+network_config['keep_prob'] = 0.333
+network_config['rnn_cell'] = rnn_cells["LSTM"]
+# network_config['rnn_cell'] = tf.contrib.cudnn_rnn.CudnnLSTM
 
-num_runs = args.num_runs
-num_epochs = args.num_epochs
-batch_size = args.batch_size
-keep_prob = args.keep_prob
 
+network_config['lambda_o'] = 0.1
+network_config['lambda_w1'] = 0.003
+network_config['lambda_w2'] = 3.0
+
+num_runs = 3
+num_epochs = 20
+batch_size = 32
+keep_prob = 0.333
 ckpt_save_dir = args.ckpt_save_dir
 
 
@@ -137,12 +155,14 @@ def main():
 
     # run optimization of the created model
     dkt.model.build_graph()
-    # dkt.run_optimization()
-    dkt.load_model_by_name('cropped_hackerrank/checkpoints/n200.lo0.0.lw10.0.lw20.0/run_2/LSTM-200/LSTM-200')
-    test = dkt.data_test.problem_seqs[0:1]
-    pred_seq = dkt.get_output_layer(dkt.data_test.problem_seqs[0:1], dkt.data_test.correct_seqs[0:1])
+    dkt.run_optimization()
     # close the session
     sess.close()
+
+    # dkt.load_model_by_name('cropped_hackerrank/checkpoints/n200.lo0.0.lw10.0.lw20.0/run_2/LSTM-200/LSTM-200')
+    # test = dkt.data_test.problem_seqs[0:1]
+    # pred_seq = dkt.get_output_layer(dkt.data_test.problem_seqs[0:1], dkt.data_test.correct_seqs[0:1])
+
 
 def build_model(path_to_model ,num_problems):
     """
