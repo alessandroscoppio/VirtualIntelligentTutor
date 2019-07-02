@@ -73,8 +73,8 @@ elif dataset == 'a2009':
     test_path = './data/skill_id_test.csv'
     save_dir_prefix = './a2009/'
 elif dataset == 'cropped_hackerrank':
-    train_path = '../data/submissions_with_students_over_20.csv'
-    test_path = '../data/submissions_with_students_over_20.csv'  # TODO split into test/train
+    train_path = '../data/submissions_20+.csv'
+    test_path = '../data/submissions_20+.csv'  # TODO split into test/train
     save_dir_prefix = './cropped_hackerrank'
 
 # train_path = os.path.join(args.data_dir, args.train_file)

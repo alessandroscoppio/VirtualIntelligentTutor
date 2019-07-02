@@ -3,13 +3,14 @@ import numpy as np
 
 
 class SequenceConstructor:
-    def __init__(self, model, exercise_ids, answers, exercises):
+    def __init__(self, model, exercise_ids, answers, num_of_exercises):
         self.model = model
         self.exercise_ids = exercise_ids
         self.answers = answers
         self.exercises_solved = []
-        self.exercises = exercises
-        self.probability_of_solving = 0.8
+        self.exercises = range(num_of_exercises)
+        self.min_difficulty = 0.40
+        self.max_difficulty = 0.75
         self.skills_vector = []
         self.max_score = -float('inf')
         self.exercises_path = []
@@ -17,7 +18,7 @@ class SequenceConstructor:
                                    "sum_of_probabilities": self.sum_of_probabilities}
 
     def get_initial_skill_vector(self):
-        self.initial_skill_vector = self.model.predict_one_student(self.exercise_ids, self.answers)[0, -1, :]
+        self.initial_skill_vector = self.model.predict_one_student(self.exercise_ids, self.answers)[ -1, :]
         return self.initial_skill_vector
 
 
@@ -26,9 +27,10 @@ class SequenceConstructor:
         score, best_exercise = self.tree_search(self.initial_skill_vector, 0, depth)
         return best_exercise
 
+
     def tree_search(self, skill_vector, exercise_id, depth):
         """
-        Expectimax algorithm, with
+        Expectimax algorithm, with given depth.
         :param skill_vector:
         :param exercise:
         :param depth: only even number of depth
@@ -36,7 +38,7 @@ class SequenceConstructor:
         """
         if depth == 0:
             # Take prediction of probabilities after user attempting to solve this exercise.
-            new_skill_vector = self.model.predict_one_student(self.exercise_ids, self.answers)[0, -1, :]
+            new_skill_vector = self.model.predict_one_student(self.exercise_ids, self.answers)[ -1, :]
             # Evaluate action
             score = self.evaluate(new_skill_vector, skill_vector, metric = 'sum_of_probabilities')
             return score, exercise_id
@@ -48,15 +50,17 @@ class SequenceConstructor:
             for new_exercise_id in self.exercises:
                 # If the exercise is not already solved
                 if new_exercise_id not in self.exercises_solved:
-                    # Try next exercise
-                    score, _ = self.tree_search(skill_vector, new_exercise_id, depth - 1)
-                    if score > max_score:
-                        max_score = score
-                        best_exercise = new_exercise_id
+                    # Check if the exercise is going in the range 0.5-0.75
+                    if self.min_difficulty <= skill_vector[new_exercise_id] <= self.max_difficulty:
+                        # Try next exercise
+                        score, _ = self.tree_search(skill_vector, new_exercise_id, depth - 1)
+                        if score > max_score:
+                            max_score = score
+                            best_exercise = new_exercise_id
 
-                        print("Max score: " + "{:1.2f}".format(score) + " for exercise " + str(
-                            best_exercise) + ". Depth is " + str(
-                            depth) + ". Probability of solving: " + "{:1.2f}".format(skill_vector[best_exercise]))
+                            # print("Max score: " + "{:1.2f}".format(score) + " for exercise " + str(
+                            #     best_exercise) + ". Depth is " + str(
+                            #     depth) + ". Probability of solving: " + "{:1.2f}".format(skill_vector[best_exercise]))
 
             return max_score, best_exercise
 
@@ -76,7 +80,6 @@ class SequenceConstructor:
 
             # Simulate that the user does NOT solve the exercise
             self.exercise_ids.append(exercise_id)
-            self.exercises_solved.append(exercise_id)
             self.answers.append(0)
 
             # Get values for unseccesful score
@@ -84,7 +87,6 @@ class SequenceConstructor:
 
             # Remove exercises from history
             del self.exercise_ids[-1]
-            del self.exercises_solved[-1]
             del self.answers[-1]
 
             # Calculate the expected score
@@ -131,9 +133,6 @@ class SequenceConstructor:
         score = np.sum(args[0]) / len(self.exercises)
         return score
 
-    # TODO 1, 2, 3 find below
-    #   1) Implement evaluation of the increase of the least performing exercise
-    #   2) Implement method that checks that the exercise is in the history
 
 
 if __name__ == "__main__":

@@ -97,8 +97,8 @@ elif dataset == 'a2009':
     test_path = './data/skill_id_test.csv'
     save_dir_prefix = './a2009/'
 elif dataset == 'cropped_hackerrank':
-    train_path = '../data/submissions_with_students_over_20.csv'
-    test_path = '../data/submissions_with_students_over_20.csv' # TODO split into test/train
+    train_path = '../data/submissions_20+.csv'
+    test_path = '../data/submissions_20+.csv' # TODO split into test/train
     save_dir_prefix = './cropped_hackerrank'
 
 
@@ -112,10 +112,10 @@ network_config['lambda_w1'] = args.lambda_w1
 network_config['lambda_w2'] = args.lambda_w2
 network_config['lambda_o'] = args.lambda_o
 
-num_runs = args.num_runs
-num_epochs = args.num_epochs
-batch_size = args.batch_size
-keep_prob = args.keep_prob
+# num_runs = args.num_runs
+# num_epochs = args.num_epochs
+# batch_size = args.batch_size
+# keep_prob = args.keep_prob
 
 network_config['lambda_o'] = 0.1
 network_config['lambda_w1'] = 0.003

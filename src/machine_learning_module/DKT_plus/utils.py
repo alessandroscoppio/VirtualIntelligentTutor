@@ -337,8 +337,10 @@ class DKT(object):
 
         return pred_seqs
 
+
+
     def predict_one_student(self, problem_seqs, correct_seqs):
-        return self.get_output_layer([problem_seqs], [correct_seqs])
+        return self.get_output_layer([problem_seqs], [correct_seqs])[0]
 
     def _log(self, log_msg):
         print(log_msg)
@@ -356,7 +358,7 @@ class DKT(object):
         #     h = se * st.t.ppf((1 + confidence) / 2., n - 1)
         #     return m, h
         #
-        # assert len(aucs) > 1, "There should be at least two auc scores to find the interval."
+        # assert len(aucs) > 1, "There should be at least two auc scores.csv to find the interval."
         cell_type_str = repr(self.network_config['rnn_cell']).split('.')[-1][:-6]
         num_layers_str = str(len(self.network_config['hidden_layer_structure']))
         layer_structure_str = ", ".join([str(i) for i in self.network_config['hidden_layer_structure']])
@@ -630,3 +632,44 @@ class DKT(object):
         consistency_m2 /= (total_num_steps)
 
         return consistency_m1, consistency_m2
+
+
+def extend_sequence_to_batch(seq_list, correct_list, batch_size, num_of_exercises):
+    """
+    Extend a sequence for 1 student to a batch of random sequences for a testing purposes
+    :param seq_list: sequence of exercises
+    :param batch_size: desired batch sice
+    :param num_of_exercises: total num of exercises in dataset
+    :return: batch with random history of students
+    """
+
+    max_length = len(seq_list)
+    final_batch = []
+    answers_batch = []
+
+    for i in range(batch_size - 1):
+
+        sum = 0
+        exercies_sequence = []
+        answers_sequence = []
+        sequence_len = max_length
+
+        while sum < sequence_len - 1:
+
+            num_of_attempts = np.random.randint(1, sequence_len - sum)
+            exercise = np.random.randint(0, num_of_exercises)
+            attempts = [exercise] * num_of_attempts
+            answers = [0] * num_of_attempts
+
+            answers[-1] = np.random.choice([0, 1])
+            answers_sequence.extend(answers)
+            exercies_sequence.extend(attempts)
+            sum += num_of_attempts
+
+        final_batch.append(exercies_sequence)
+        answers_batch.append(answers_sequence)
+
+    final_batch.append(seq_list)
+    answers_batch.append(correct_list)
+
+    return final_batch, answers_batch

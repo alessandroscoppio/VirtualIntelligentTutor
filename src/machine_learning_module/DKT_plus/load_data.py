@@ -2,8 +2,9 @@ import os
 import csv
 import numpy as np
 from sklearn.utils import shuffle
-from src.machine_learning_module.Utils import read_file, split_tuple
+from src.machine_learning_module.old_dkt.Utils import read_file, split_tuple
 import random
+
 
 
 def pad(data, target_length, target_value = 0):
@@ -107,7 +108,7 @@ class BatchGenerator:
 
 
 def read_old_format_data(filename):
-    raw_data, num_problems = read_file(filename)
+    raw_data, num_problems, skill_ids = read_file(filename)
     X, y = split_tuple([value for idx, value in enumerate(raw_data)])
 
     max_seq_length = 0
