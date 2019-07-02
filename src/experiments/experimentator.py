@@ -1,10 +1,10 @@
-from src.machine_learning_module.DKT_plus.load_data import read_old_format_data
-from src.machine_learning_module.DKT_plus.mainDKT_plus import build_model
+from machine_learning_module.DKT_plus.load_data import read_old_format_data
+from machine_learning_module.DKT_plus.mainDKT_plus import build_model
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from src.sequence_constructor.sequence_constructor import SequenceConstructor
+from sequence_constructor.sequence_constructor import SequenceConstructor
 
 
 class Experimentator():

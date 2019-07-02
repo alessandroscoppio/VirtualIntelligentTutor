@@ -1,6 +1,6 @@
 import numpy as np
 from matplotlib import pyplot as plt
-from src.machine_learning_module.DKT_plus.utils import extend_sequence_to_batch
+from machine_learning_module.DKT_plus.utils import extend_sequence_to_batch
 
 
 def plot_single_student_history(test_ex_list, test_answer_list, model, num_of_exercises, student_id = -1,
