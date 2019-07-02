@@ -1,5 +1,5 @@
 # Intelligent Virtual Tutor
-Intelligent Virtual Tutor  - an interactive system that provides a dynamic and adaptive learning to different students by adapting the learning process to the student. This application combines Deep Knowledge Tracing algorithm with the Expectimax in order to model the student knowledge and suggest the most suitable for the student exercise. 
+Intelligent Virtual Tutor is an interactive system that provides a dynamic and adaptive learning to different students by adapting the learning process to the student. This application combines Deep Knowledge Tracing algorithm with the Expectimax in order to model the student knowledge and suggest the most suitable for the student exercise. 
 Specifically the DKT module is trained on the dataset provided by HackerRank for a challenge. 
 
 ### Algorithm used  
