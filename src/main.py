@@ -2,7 +2,7 @@ from src.machine_learning_module.DKT_plus.mainDKT_plus import build_model
 from src.experiments.experimentator import Experimentator
 from src.experiments.plotter import plot_two_skill_vectors
 
-data_path = "./machine_learning_module/data/submissions_20+.csv"
+data_path = "./machine_learning_module/data/submissions_20+.csv"    # This exercise set was cropped. More in the report paper
 trained_models = {
     "DKT": "./machine_learning_module/DKT_plus/cropped_hackerrank/checkpoints/n200.lo0.0.lw10.0.lw20.0/run_1/LSTM-200/LSTM-200",
     "DKT+": "./machine_learning_module/DKT_plus/cropped_hackerrank/checkpoints/n200.lo0.1.lw10.003.lw23.0/run_1/LSTM-200/LSTM-200"}
@@ -19,11 +19,13 @@ if __name__ == "__main__":
 
 
     # Show average probability for a high performing students
-    experimentator.plot_dynamics_high_performing_students(1)
+    top_rank = 1
+    experimentator.plot_dynamics_high_performing_students(top_rank)
 
 
     # Show average probability for a low performing students
-    experimentator.plot_dynamics_low_performing_students(1)
+    low_rank = 1
+    experimentator.plot_dynamics_low_performing_students(low_rank)
 
 
     # Custom list of attempts and expectimax prediction

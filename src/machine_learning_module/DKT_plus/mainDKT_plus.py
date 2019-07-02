@@ -3,8 +3,8 @@ import tensorflow as tf
 import time
 import numpy as np
 
-from src.machine_learning_module.DKT_plus.utils import DKT
-from src.machine_learning_module.DKT_plus.load_data import DKTData
+from machine_learning_module.DKT_plus.utils import DKT
+from machine_learning_module.DKT_plus.load_data import DKTData
 
 """
 Assignable variables:
