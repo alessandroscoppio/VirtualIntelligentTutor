@@ -37,6 +37,7 @@ def read_file(dataset_path):
     # Step 2 - Convert to sequence by student id
     students_seq = data.groupby("user_id", as_index=True)["skill_id", "correct"].apply(lambda x: x.values.tolist()).tolist()
 
+
     # Step 3 - Rearrange the skill_id
     seqs_by_student = {}
     skill_ids = {}
@@ -54,7 +55,9 @@ def read_file(dataset_path):
 
     seqs_list = list(seqs_by_student.values())
 
-    return seqs_list, num_skill
+
+
+    return seqs_list, num_skill, skill_ids
 
 
 # This class is responsible for feeding the data into the model following a specific format.
