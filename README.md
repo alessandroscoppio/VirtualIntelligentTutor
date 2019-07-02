@@ -5,6 +5,7 @@ Specifically the DKT module is trained on the dataset provided by HackerRank for
 ### Algorithm used  
 Virtual Tutor consist of three modules: <br/>
 **__Knowledge Tracing Module:__**  LSTM network, that is predicting the probability of solving the exercise of a student basing on the past performance.
+ <br/>
 **Sequence constructor:** 
 A search module that investigates the probabilities of solving the exercise for a given set of exercises and picks the one that increases the probabilities the most.
 
