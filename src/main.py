@@ -1,6 +1,6 @@
-from src.machine_learning_module.DKT_plus.mainDKT_plus import build_model
-from src.experiments.experimentator import Experimentator
-from src.experiments.plotter import plot_two_skill_vectors
+from machine_learning_module.DKT_plus.mainDKT_plus import build_model
+from experiments.experimentator import Experimentator
+from experiments.plotter import plot_two_skill_vectors
 
 data_path = "./machine_learning_module/data/submissions_20+.csv"    # This exercise set was cropped. More in the report paper
 trained_models = {

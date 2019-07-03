@@ -2,7 +2,7 @@ import os
 import csv
 import numpy as np
 from sklearn.utils import shuffle
-from src.machine_learning_module.old_dkt.Utils import read_file, split_tuple
+from machine_learning_module.old_dkt.Utils import read_file, split_tuple
 import random
 
 

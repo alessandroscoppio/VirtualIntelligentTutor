@@ -1,8 +1,8 @@
 import os, sys, time
 import tensorflow as tf
 from sklearn.metrics import roc_curve, auc
-from src.machine_learning_module.DKT_plus.load_data import OriginalInputProcessor
-from src.machine_learning_module.DKT_plus.model import Model
+from machine_learning_module.DKT_plus.load_data import OriginalInputProcessor
+from machine_learning_module.DKT_plus.model import Model
 import numpy as np
 import pandas as pd
 
