@@ -9,6 +9,7 @@ Virtual Tutor consist of three modules: <br/>
 **Sequence constructor:** 
 A search module that investigates the probabilities of solving the exercise for a given set of exercises and picks the one that increases the probabilities the most.
 
+![alt text](https://github.com/alessandroscoppio/VirtualIntelligentTutor/blob/master/architecture.png)
 ### How to run
 
 ```
